@@ -14,8 +14,8 @@ func SuccessResponse[T any](data T) Response[T] {
 	}
 }
 
-func ErrorResponse[T any](message string) Response[T] {
-	return Response[T]{
+func ErrorResponse(message string) Response[any] {
+	return Response[any]{
 		Success: false,
 		Message: message,
 	}
