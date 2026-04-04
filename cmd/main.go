@@ -3,6 +3,7 @@ package main
 import (
 	"apart_community/config"
 	"apart_community/internal/database"
+	"apart_community/internal/utils"
 	"apart_community/registry"
 	"apart_community/router"
 	"context"
@@ -15,6 +16,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
@@ -28,6 +31,10 @@ func main() {
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
 	container := registry.NewContainer(db)
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("password_check", utils.ValidatePassword)
+	}
 
 	r := gin.Default()
 	router.SetupRouter(r, container)

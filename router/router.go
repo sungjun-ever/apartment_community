@@ -9,10 +9,15 @@ import (
 func SetupRouter(r *gin.Engine, ct *registry.Container) {
 	v1 := r.Group("/api/v1")
 	{
-		v1.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "pong",
-			})
-		})
+		v1.POST("/register", ct.UserController.CreateUser)
+
+		users := v1.Group("/users")
+		{
+			users.GET("/", ct.UserController.GetUsers)
+			users.GET("/:id", ct.UserController.GetUser)
+			users.PUT("/:id", ct.UserController.UpdateUser)
+			users.DELETE(":id", ct.UserController.DeleteUser)
+		}
+
 	}
 }
