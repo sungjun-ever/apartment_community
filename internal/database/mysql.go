@@ -1,6 +1,7 @@
 package database
 
 import (
+	"apart_community/internal/model"
 	"fmt"
 	"os"
 
@@ -21,6 +22,23 @@ func ConnectMySQLDB() *gorm.DB {
 
 	if err != nil {
 		panic(err)
+	}
+
+	err = db.AutoMigrate(
+		&model.User{},
+		&model.Profile{},
+		&model.Apartment{},
+		&model.Attachment{},
+		&model.Board{},
+		&model.BoardPermission{},
+		&model.Post{},
+		&model.PostComment{},
+		&model.Role{},
+		&model.UserBelongApartment{},
+	)
+
+	if err != nil {
+		fmt.Println("migration 에러", err)
 	}
 
 	return db
