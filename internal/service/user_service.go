@@ -52,8 +52,11 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 		txUserRepo := u.userRepo.WithTrx(tx)
 		txProfileRepo := u.profileRepo.WithTrx(tx)
 
-		var exist model.User
-		tx.Where("email = ?", user.Email).First(&exist)
+		exist, err := txUserRepo.FindByEmail(user.Email)
+
+		if err != nil {
+			return err
+		}
 
 		if exist.ID != 0 {
 			return errors.New("존재하는 사용자")
@@ -62,13 +65,13 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 		hashedPassword, _ := utils.HashPassword(user.Password)
 		user.Password = hashedPassword
 
-		if _, err := txUserRepo.Create(&user); err != nil {
+		if _, err = txUserRepo.Create(&user); err != nil {
 			return err
 		}
 
 		profile.UserID = user.ID
 
-		if _, err := txProfileRepo.Create(&profile); err != nil {
+		if _, err = txProfileRepo.Create(&profile); err != nil {
 			return err
 		}
 
