@@ -54,10 +54,6 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 
 		exist, err := txUserRepo.FindByEmail(user.Email)
 
-		if err != nil {
-			return err
-		}
-
 		if exist.ID != 0 {
 			return errors.New("존재하는 사용자")
 		}
