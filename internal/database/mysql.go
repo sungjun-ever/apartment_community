@@ -7,7 +7,23 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
+
+func setDbLogLevel() logger.LogLevel {
+	ginMode := os.Getenv("GIN_MODE")
+
+	switch ginMode {
+	case "release":
+		return logger.Silent
+	case "test":
+		return logger.Error
+	case "debug":
+		return logger.Info
+	}
+
+	return logger.Silent
+}
 
 func ConnectMySQLDB() *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -18,7 +34,9 @@ func ConnectMySQLDB() *gorm.DB {
 		os.Getenv("DB_NAME"),
 	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(setDbLogLevel()),
+	})
 
 	if err != nil {
 		panic(err)

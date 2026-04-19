@@ -28,7 +28,7 @@ func main() {
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+	sqlDB.SetConnMaxLifetime(2 * time.Minute)
 
 	container := registry.NewContainer(db)
 
@@ -36,7 +36,9 @@ func main() {
 		_ = v.RegisterValidation("password_check", utils.ValidatePassword)
 	}
 
+	gin.SetMode(os.Getenv("GIN_MODE"))
 	r := gin.Default()
+
 	router.SetupRouter(r, container)
 
 	srv := &http.Server{
