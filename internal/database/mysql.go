@@ -7,7 +7,23 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
+
+func setDbLogLevel() logger.LogLevel {
+	ginMode := os.Getenv("GIN_MODE")
+
+	switch ginMode {
+	case "release":
+		return logger.Silent
+	case "test":
+		return logger.Error
+	case "debug":
+		return logger.Info
+	}
+
+	return logger.Silent
+}
 
 func ConnectMySQLDB() *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -18,7 +34,9 @@ func ConnectMySQLDB() *gorm.DB {
 		os.Getenv("DB_NAME"),
 	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(setDbLogLevel()),
+	})
 
 	if err != nil {
 		panic(err)
@@ -41,5 +59,25 @@ func ConnectMySQLDB() *gorm.DB {
 		fmt.Println("migration 에러", err)
 	}
 
+	db.Migrator().CreateIndex(&model.User{}, "idx_user_uuid")
+	db.Migrator().CreateIndex(&model.User{}, "idx_user_email")
+
+	db.Migrator().CreateIndex(&model.Apartment{}, "idx_apart_uuid")
+
+	db.Migrator().CreateIndex(&model.UserBelongApartment{}, "idx_upa_userId")
+	db.Migrator().CreateIndex(&model.UserBelongApartment{}, "idx_upa_apartmentId")
+
+	db.Migrator().CreateIndex(&model.Profile{}, "idx_profile_userId")
+	db.Migrator().CreateIndex(&model.Profile{}, "idx_profile_imageId")
+
+	db.Migrator().CreateIndex(&model.Post{}, "idx_post_uuid")
+	db.Migrator().CreateIndex(&model.Post{}, "idx_post_boardId")
+	db.Migrator().CreateIndex(&model.Post{}, "idx_post_apartmentId")
+	db.Migrator().CreateIndex(&model.Post{}, "idx_post_userId")
+
+	db.Migrator().CreateIndex(&model.PostComment{}, "idx_comment_postId")
+	db.Migrator().CreateIndex(&model.PostComment{}, "idx_comment_userId")
+
+	db.Migrator().CreateIndex(&model.Board{}, "idx_board_apartmentId")
 	return db
 }

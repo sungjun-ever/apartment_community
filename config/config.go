@@ -1,29 +1,41 @@
 package config
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
 
-func LoadEnv() {
-	wd, _ := os.Getwd()
-
-	curr := wd
-
-	for i := 0; i < 5; i++ {
-		envPath := filepath.Join(curr, ".env")
-		if _, err := os.Stat(envPath); err == nil {
-			err := godotenv.Load(envPath)
-			if err != nil {
-				log.Fatalf(".env 로딩 실패: %v", err)
-			}
-
-			log.Printf(".env loaded path: %s", envPath)
-			return
-		}
-		curr = filepath.Dir(curr)
+func isValidEnvironment(environment *string) bool {
+	switch *environment {
+	case "dev",
+		"prod":
+		return true
 	}
+	return false
+}
+
+func LoadEnv() {
+	environment := flag.String("e", "dev", "")
+	flag.Usage = func() {
+		fmt.Println("Usage: server -e {mode}")
+		os.Exit(1)
+	}
+	flag.Parse()
+
+	if !isValidEnvironment(environment) {
+		log.Fatalf("Invalid environment: %s\n", *environment)
+	}
+
+	err := godotenv.Load("../.env." + *environment)
+
+	if err != nil {
+		log.Println(err.Error())
+		log.Fatalln("Error loading .env file")
+	}
+
+	fmt.Println("env loaded. APP_NAME: ", os.Getenv("APP_NAME"), "")
 }

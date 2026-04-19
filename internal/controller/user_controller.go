@@ -47,15 +47,7 @@ func (u *UserController) GetUser(c *gin.Context) {
 		return
 	}
 
-	userInfo := user.Resources{
-		ID:             getUser.ID,
-		UUID:           getUser.UUID,
-		Email:          getUser.Email,
-		CreatedAt:      getUser.CreatedAt,
-		Nickname:       getUser.Profile.Nickname,
-		Status:         getUser.Status,
-		ProfileImageId: getUser.Profile.ProfileImageId,
-	}
+	userInfo := user.NewResource(getUser)
 
 	c.JSON(200, dto.SuccessResponse(userInfo))
 }
@@ -80,15 +72,7 @@ func (u *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	userInfo := user.Resources{
-		ID:             createUser.ID,
-		UUID:           createUser.UUID,
-		Email:          createUser.Email,
-		CreatedAt:      createUser.CreatedAt,
-		Nickname:       createUser.Profile.Nickname,
-		Status:         createUser.Status,
-		ProfileImageId: createUser.Profile.ProfileImageId,
-	}
+	userInfo := user.NewResource(createUser)
 
 	c.JSON(201, dto.SuccessResponse(userInfo))
 }
