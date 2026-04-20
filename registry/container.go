@@ -15,8 +15,9 @@ type Container struct {
 func NewContainer(db *gorm.DB) *Container {
 	userRepo := repository.NewUserRepository(db)
 	profileRepo := repository.NewProfileRepository(db)
+	belongApartRepo := repository.NewBelongApartRepository(db)
 
-	userSvc := service.NewUserService(userRepo, profileRepo, db)
+	userSvc := service.NewUserService(userRepo, profileRepo, belongApartRepo, db)
 
 	return &Container{
 		UserController: controller.NewUserController(*userSvc),
