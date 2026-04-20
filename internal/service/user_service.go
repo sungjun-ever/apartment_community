@@ -45,7 +45,7 @@ func (u *UserService) GetUserByEmail(email string) (model.User, error) {
 	return u.userRepo.FindByEmail(email)
 }
 
-func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model.User, error) {
+func (u *UserService) CreateUser(user *model.User, profile *model.Profile) (*model.User, error) {
 	var createdUser *model.User
 
 	err := u.db.Transaction(func(tx *gorm.DB) error {
@@ -61,18 +61,18 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 		hashedPassword, _ := utils.HashPassword(user.Password)
 		user.Password = hashedPassword
 
-		if _, err = txUserRepo.Create(&user); err != nil {
+		if _, err = txUserRepo.Create(user); err != nil {
 			return err
 		}
 
 		profile.UserID = user.ID
 
-		if _, err = txProfileRepo.Create(&profile); err != nil {
+		if _, err = txProfileRepo.Create(profile); err != nil {
 			return err
 		}
 
 		user.Profile = profile
-		createdUser = &user
+		createdUser = user
 
 		return nil
 	})

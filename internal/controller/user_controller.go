@@ -64,6 +64,12 @@ func (u *UserController) CreateUser(c *gin.Context) {
 	userEntity := req.ToUserEntity()
 	profileEntity := req.ToProfileEntity()
 
+	if userEntity == nil || profileEntity == nil {
+		log.Println("createUser entity is empty", userEntity, profileEntity)
+		c.JSON(500, dto.ErrorResponse("사용자 생성에 실패했습니다."))
+		return
+	}
+
 	createUser, err := u.us.CreateUser(userEntity, profileEntity)
 
 	if err != nil {
