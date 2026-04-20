@@ -83,7 +83,7 @@ func (u *UserController) CreateUser(c *gin.Context) {
 	c.JSON(201, dto.SuccessResponse(userInfo))
 }
 
-func (u *UserController) UpdateUser(c *gin.Context) {
+func (u *UserController) EditUser(c *gin.Context) {
 	var uUser model.User
 
 	if err := c.ShouldBindJSON(&uUser); err != nil {
@@ -103,7 +103,17 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 	c.JSON(200, dto.SuccessResponse(updateUser))
 }
 
-func (u *UserController) DeleteUser(c *gin.Context) {
+func (u *UserController) UpdateUserApart(c *gin.Context) {
+	var ubaRequest model.UserBelongApartment
+
+	if err := c.ShouldBindBodyWithJSON(&ubaRequest); err != nil {
+		log.Println(err.Error())
+		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
+		return
+	}
+}
+
+func (u *UserController) DestroyUser(c *gin.Context) {
 	var uri user.UriRequest
 
 	if err := c.ShouldBindUri(&uri); err != nil {

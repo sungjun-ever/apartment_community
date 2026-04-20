@@ -17,8 +17,10 @@ func SetupRouter(r *gin.Engine, ct *registry.Container) {
 		{
 			users.GET("/", ct.UserController.GetUsers)
 			users.GET("/:id", ct.UserController.GetUser)
-			users.PUT("/:id", ct.UserController.UpdateUser)
-			users.DELETE(":id", ct.UserController.DeleteUser)
+			users.PUT("/:id", ct.UserController.EditUser)
+			users.DELETE(":id", ct.UserController.DestoryUser)
+
+			users.PUT("/:id/apartment", ct.UserController.UpdateUserApart)
 		}
 
 	}
