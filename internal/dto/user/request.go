@@ -19,9 +19,18 @@ type RegisterRequest struct {
 	ProfileImageId *uint  `json:"profile_image_id,omitempty"`
 }
 
-func (r *RegisterRequest) ToUserEntity() model.User {
+type BelongApartmentRequest struct {
+	UserID      uint `json:"user_id" binding:"required"`
+	ApartmentID uint `json:"apartment_id" binding:"required"`
+	RoleID      uint `json:"role_id" binding:"required"`
+	Unit        uint `json:"unit" bindind:"omitempty"`
+	No          uint `json:"no" bindind:"omitempty"`
+	IsVerified  bool `json:"is_verified" binding:"omitempty"`
+}
+
+func (r *RegisterRequest) ToUserEntity() *model.User {
 	newUUID, _ := uuid.NewV7()
-	return model.User{
+	return &model.User{
 		UUID:     newUUID.String(),
 		Email:    r.Email,
 		Password: r.Password,
@@ -29,9 +38,20 @@ func (r *RegisterRequest) ToUserEntity() model.User {
 	}
 }
 
-func (r *RegisterRequest) ToProfileEntity() model.Profile {
-	return model.Profile{
+func (r *RegisterRequest) ToProfileEntity() *model.Profile {
+	return &model.Profile{
 		Nickname:       r.Nickname,
 		ProfileImageId: r.ProfileImageId,
+	}
+}
+
+func (r *BelongApartmentRequest) ToUbaEntity() *model.UserBelongApartment {
+	return &model.UserBelongApartment{
+		UserID:      r.UserID,
+		ApartmentID: r.ApartmentID,
+		RoleID:      r.RoleID,
+		Unit:        &r.Unit,
+		No:          &r.No,
+		IsVerified:  r.IsVerified,
 	}
 }

@@ -10,14 +10,16 @@ import (
 )
 
 type UserService struct {
-	userRepo    repository.UserRepository
-	profileRepo repository.ProfileRepository
-	db          *gorm.DB
+	userRepo        repository.UserRepository
+	profileRepo     repository.ProfileRepository
+	belongApartRepo repository.BelongApartRepository
+	db              *gorm.DB
 }
 
 func NewUserService(
 	userRepo repository.UserRepository,
 	profileRepo repository.ProfileRepository,
+	belongApartRepo repository.BelongApartRepository,
 	db *gorm.DB,
 ) *UserService {
 	return &UserService{
@@ -27,11 +29,11 @@ func NewUserService(
 	}
 }
 
-func (u *UserService) GetAllUsers() ([]model.User, error) {
+func (u *UserService) FindAllUsers() ([]model.User, error) {
 	return u.userRepo.FindAll()
 }
 
-func (u *UserService) GetUser(id uint) (*model.User, error) {
+func (u *UserService) FindUser(id uint) (*model.User, error) {
 	getUser, err := u.userRepo.FindByID(id)
 
 	if err != nil {
@@ -45,7 +47,7 @@ func (u *UserService) GetUserByEmail(email string) (model.User, error) {
 	return u.userRepo.FindByEmail(email)
 }
 
-func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model.User, error) {
+func (u *UserService) CreateUser(user *model.User, profile *model.Profile) (*model.User, error) {
 	var createdUser *model.User
 
 	err := u.db.Transaction(func(tx *gorm.DB) error {
@@ -61,18 +63,18 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 		hashedPassword, _ := utils.HashPassword(user.Password)
 		user.Password = hashedPassword
 
-		if _, err = txUserRepo.Create(&user); err != nil {
+		if _, err = txUserRepo.Create(user); err != nil {
 			return err
 		}
 
 		profile.UserID = user.ID
 
-		if _, err = txProfileRepo.Create(&profile); err != nil {
+		if _, err = txProfileRepo.Create(profile); err != nil {
 			return err
 		}
 
 		user.Profile = profile
-		createdUser = &user
+		createdUser = user
 
 		return nil
 	})
@@ -87,6 +89,16 @@ func (u *UserService) CreateUser(user model.User, profile model.Profile) (*model
 
 func (u *UserService) UpdateUser(user model.User) (model.User, error) {
 	return u.userRepo.Update(&user)
+}
+
+func (u *UserService) UpdateBelongApart(data model.UserBelongApartment) error {
+	_, err := u.belongApartRepo.Create(&data)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (u *UserService) DeleteUser(id uint) error {

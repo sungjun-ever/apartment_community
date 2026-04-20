@@ -19,7 +19,7 @@ func NewUserController(us service.UserService) *UserController {
 }
 
 func (u *UserController) GetUsers(c *gin.Context) {
-	users, err := u.us.GetAllUsers()
+	users, err := u.us.FindAllUsers()
 
 	if err != nil {
 		log.Println(err.Error())
@@ -39,7 +39,7 @@ func (u *UserController) GetUser(c *gin.Context) {
 		return
 	}
 
-	getUser, err := u.us.GetUser(uri.ID)
+	getUser, err := u.us.FindUser(uri.ID)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -52,7 +52,7 @@ func (u *UserController) GetUser(c *gin.Context) {
 	c.JSON(200, dto.SuccessResponse(userInfo))
 }
 
-func (u *UserController) CreateUser(c *gin.Context) {
+func (u *UserController) StoreUser(c *gin.Context) {
 	var req user.RegisterRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -63,6 +63,12 @@ func (u *UserController) CreateUser(c *gin.Context) {
 
 	userEntity := req.ToUserEntity()
 	profileEntity := req.ToProfileEntity()
+
+	if userEntity == nil || profileEntity == nil {
+		log.Println("StoreUser entity is empty", userEntity, profileEntity)
+		c.JSON(500, dto.ErrorResponse("사용자 생성에 실패했습니다."))
+		return
+	}
 
 	createUser, err := u.us.CreateUser(userEntity, profileEntity)
 
@@ -77,7 +83,7 @@ func (u *UserController) CreateUser(c *gin.Context) {
 	c.JSON(201, dto.SuccessResponse(userInfo))
 }
 
-func (u *UserController) UpdateUser(c *gin.Context) {
+func (u *UserController) EditUser(c *gin.Context) {
 	var uUser model.User
 
 	if err := c.ShouldBindJSON(&uUser); err != nil {
@@ -97,7 +103,25 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 	c.JSON(200, dto.SuccessResponse(updateUser))
 }
 
-func (u *UserController) DeleteUser(c *gin.Context) {
+func (u *UserController) EditBelongApart(c *gin.Context) {
+	var ubaRequest model.UserBelongApartment
+
+	if err := c.ShouldBindBodyWithJSON(&ubaRequest); err != nil {
+		log.Println(err.Error())
+		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
+		return
+	}
+
+	err := u.us.UpdateBelongApart(ubaRequest)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	c.JSON(201, dto.SuccessEmptyResponse[model.UserBelongApartment]())
+}
+
+func (u *UserController) DestroyUser(c *gin.Context) {
 	var uri user.UriRequest
 
 	if err := c.ShouldBindUri(&uri); err != nil {
