@@ -1,13 +1,17 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"context"
+
+	"gorm.io/gorm"
+)
 
 type BaseRepository[T any] interface {
-	FindAll() ([]T, error)
-	FindByID(id uint) (T, error)
-	Create(entity *T) (T, error)
-	Update(entity *T) (T, error)
-	Delete(id uint) error
+	FindAll(ctx context.Context) ([]T, error)
+	FindByID(ctx context.Context, id uint) (T, error)
+	Create(ctx context.Context, entity *T) (T, error)
+	Update(ctx context.Context, entity *T) (T, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 type baseRepository[T any] struct {
@@ -18,29 +22,33 @@ func NewBaseRepository[T any](db *gorm.DB) BaseRepository[T] {
 	return &baseRepository[T]{db: db}
 }
 
-func (b baseRepository[T]) FindAll() ([]T, error) {
+func (b baseRepository[T]) conn(ctx context.Context) *gorm.DB {
+	return b.db.WithContext(ctx)
+}
+
+func (b baseRepository[T]) FindAll(ctx context.Context) ([]T, error) {
 	var entities []T
-	err := b.db.Find(&entities).Error
+	err := b.conn(ctx).Find(&entities).Error
 	return entities, err
 }
 
-func (b baseRepository[T]) FindByID(id uint) (T, error) {
+func (b baseRepository[T]) FindByID(ctx context.Context, id uint) (T, error) {
 	var entity T
-	err := b.db.First(&entity, id).Error
+	err := b.conn(ctx).First(&entity, id).Error
 	return entity, err
 }
 
-func (b baseRepository[T]) Create(entity *T) (T, error) {
-	err := b.db.Create(entity).Error
+func (b baseRepository[T]) Create(ctx context.Context, entity *T) (T, error) {
+	err := b.conn(ctx).Create(entity).Error
 	return *entity, err
 }
 
-func (b baseRepository[T]) Update(entity *T) (T, error) {
-	err := b.db.Save(entity).Error
+func (b baseRepository[T]) Update(ctx context.Context, entity *T) (T, error) {
+	err := b.conn(ctx).Save(entity).Error
 	return *entity, err
 }
 
-func (b baseRepository[T]) Delete(id uint) error {
+func (b baseRepository[T]) Delete(ctx context.Context, id uint) error {
 	var entity T
-	return b.db.Delete(&entity, id).Error
+	return b.conn(ctx).Delete(&entity, id).Error
 }
