@@ -9,7 +9,10 @@ import (
 
 func SetupRouter(r *gin.Engine, ct *registry.Container) {
 	v1 := r.Group("/api/v1")
-	v1.Use(middleware.RateLimitMiddleware())
+	v1.Use(
+		middleware.RateLimitMiddleware(),
+		middleware.TraceIDMiddleware(),
+	)
 	{
 		v1.POST("/register", ct.UserController.StoreUser)
 
