@@ -92,23 +92,24 @@ func (u *UserController) EditUser(c *gin.Context) {
 
 	utils.InfoLogWithContext(ctx, "start EditUser", traceID)
 
-	var uUser model.User
+	var profile user.ProfileRequest
 
-	if err := c.ShouldBindJSON(&uUser); err != nil {
-		msg := "잘못된 요청입니다."
-		utils.ErrorLogWithContext(ctx, msg, "EditUser", traceID)
-		c.JSON(400, dto.ErrorResponse(msg))
+	if err := c.ShouldBindJSON(&profile); err != nil {
+		utils.ErrorLogWithContext(ctx, err.Error(), "EditUser", traceID)
+		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}
 
-	updateUser, err := u.us.UpdateUser(ctx, uUser)
+	updateUser, err := u.us.UpdateUser(ctx, profile)
 
 	if err != nil {
 		c.JSON(500, dto.ErrorResponse("사용자 수정에 실패했습니다."))
 		return
 	}
 
-	c.JSON(200, dto.SuccessResponse(updateUser))
+	userInfo := user.NewResource(updateUser)
+
+	c.JSON(200, dto.SuccessResponse(userInfo))
 }
 
 func (u *UserController) EditBelongApart(c *gin.Context) {
