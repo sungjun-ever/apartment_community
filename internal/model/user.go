@@ -11,7 +11,7 @@ type User struct {
 	Password string               `gorm:"not null" json:"-" binding:"required,min=6,max=20"`
 	Status   int                  `gorm:"default:0" json:"status"`
 	Profile  *Profile             `gorm:"foreignKey:UserID" json:"profile"`
-	Uba      *UserBelongApartment `gorm:"foreignKey:UserID" json: uba`
+	Uba      *UserBelongApartment `gorm:"foreignKey:UserID" json:"uba"`
 }
 
 func (u *User) BeforeDelete(tx *gorm.DB) (err error) {
