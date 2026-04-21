@@ -128,17 +128,26 @@ func (u *UserService) CreateUser(ctx context.Context, req user.RegisterRequest) 
 
 }
 
-func (u *UserService) UpdateUser(ctx context.Context, user model.User) (*model.User, error) {
+func (u *UserService) UpdateUser(ctx context.Context, profile user.ProfileRequest) (*model.User, error) {
 	traceID := utils.GetTraceID(ctx)
+	profileEntity := profile.ToProfileEntity()
 
-	updatedUser, err := u.userRepo.Update(ctx, &user)
+	// TODO : 로그인 한 사용자의 정보를 확인 후 profileEntity.UserID에 넣어줘야함
+	err := u.profileRepo.UpdateByUserID(ctx, *profileEntity, profileEntity.UserID)
 
 	if err != nil {
 		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser", traceID)
 		return nil, err
 	}
 
-	return &updatedUser, nil
+	getUser, err := u.userRepo.FindByID(ctx, profileEntity.UserID)
+
+	if err != nil {
+		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser", traceID)
+		return nil, err
+	}
+
+	return &getUser, nil
 }
 
 func (u *UserService) UpdateBelongApart(ctx context.Context, data model.UserBelongApartment) error {
