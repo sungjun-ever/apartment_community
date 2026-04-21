@@ -26,9 +26,7 @@ func (u *UserController) GetUsers(c *gin.Context) {
 	users, err := u.us.FindAllUsers(ctx)
 
 	if err != nil {
-		msg := "사용자 정보가 없습니다."
-		utils.ErrorLogWithContext(ctx, "GetUsers", msg, traceID)
-		c.JSON(404, dto.ErrorResponse(msg))
+		c.JSON(404, dto.ErrorResponse("사용자 정보가 없습니다."))
 		return
 	}
 
@@ -52,9 +50,7 @@ func (u *UserController) GetUser(c *gin.Context) {
 	getUser, err := u.us.FindUser(ctx, uri.ID)
 
 	if err != nil {
-		msg := "사용자 정보가 없습니다."
-		utils.ErrorLogWithContext(ctx, msg, "GetUser", traceID)
-		c.JSON(404, dto.ErrorResponse(msg))
+		c.JSON(404, dto.ErrorResponse("사용자 정보가 없습니다."))
 		return
 	}
 
@@ -81,9 +77,7 @@ func (u *UserController) StoreUser(c *gin.Context) {
 	createUser, err := u.us.CreateUser(ctx, req)
 
 	if err != nil {
-		msg := "사용자 생성에 실패했습니다."
-		utils.ErrorLogWithContext(ctx, msg, "StoreUser", traceID)
-		c.JSON(500, dto.ErrorResponse(msg))
+		c.JSON(500, dto.ErrorResponse("사용자 생성에 실패했습니다."))
 		return
 	}
 
@@ -110,9 +104,7 @@ func (u *UserController) EditUser(c *gin.Context) {
 	updateUser, err := u.us.UpdateUser(ctx, uUser)
 
 	if err != nil {
-		msg := "사용자 수정에 실패했습니다."
-		utils.ErrorLogWithContext(ctx, msg, "EditUser", traceID)
-		c.JSON(500, dto.ErrorResponse(msg))
+		c.JSON(500, dto.ErrorResponse("사용자 수정에 실패했습니다."))
 		return
 	}
 
@@ -137,9 +129,7 @@ func (u *UserController) EditBelongApart(c *gin.Context) {
 	err := u.us.UpdateBelongApart(ctx, ubaRequest)
 
 	if err != nil {
-		msg := "사용자 아파트 등록에 실패했습니다."
-		utils.ErrorLogWithContext(ctx, msg, "EditBelongApart", traceID)
-		c.JSON(500, dto.ErrorResponse(msg))
+		c.JSON(500, dto.ErrorResponse("사용자 아파트 등록에 실패했습니다."))
 	}
 
 	c.JSON(201, dto.SuccessEmptyResponse[model.UserBelongApartment]())
@@ -163,9 +153,7 @@ func (u *UserController) DestroyUser(c *gin.Context) {
 	err := u.us.DeleteUser(ctx, uri.ID)
 
 	if err != nil {
-		msg := "사용자 삭제에 실패했습니다."
-		utils.ErrorLogWithContext(ctx, msg, "DestroyUser", traceID)
-		c.JSON(500, dto.ErrorResponse(msg))
+		c.JSON(500, dto.ErrorResponse("사용자 삭제에 실패했습니다."))
 		return
 	}
 
