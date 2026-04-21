@@ -13,3 +13,15 @@ type User struct {
 	Profile  *Profile             `gorm:"foreignKey:UserID" json:"profile"`
 	Uba      *UserBelongApartment `gorm:"foreignKey:UserID" json: uba`
 }
+
+func (u *User) BeforeDelete(tx *gorm.DB) (err error) {
+	if err := tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Where("user_id = ?", u.ID).Delete(&UserBelongApartment{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
