@@ -10,22 +10,32 @@ type UriRequest struct {
 	ID uint `uri:"id" binding:"required,numeric,gt=0"`
 }
 
+type ProfileRequest struct {
+	Nickname       string `json:"nickname" binding:"required"`
+	ProfileImageId *uint  `json:"profileImageId" binding:"omitempty"`
+}
+
 type RegisterRequest struct {
 	Email           string `json:"email" binding:"required,email"`
 	Password        string `json:"password" binding:"required,password_check"`
 	PasswordConfirm string `json:"password_confirm" binding:"required,eqfield=Password"`
 
-	Nickname       string `json:"nickname" binding:"required"`
-	ProfileImageId *uint  `json:"profile_image_id,omitempty"`
+	ProfileRequest
+}
+
+type UpdatePasswordRequest struct {
+	OriginPassword     string `json:"originPassword" binding:"required,password_check"`
+	NewPassword        string `json:"newPassword" binding:"required,password_check"`
+	NewPasswordConfirm string `json:"newPasswordConfirm" binding:"required,eqfield=NewPassword"`
 }
 
 type BelongApartmentRequest struct {
-	UserID      uint `json:"user_id" binding:"required"`
-	ApartmentID uint `json:"apartment_id" binding:"required"`
-	RoleID      uint `json:"role_id" binding:"required"`
-	Unit        uint `json:"unit" bindind:"omitempty"`
-	No          uint `json:"no" bindind:"omitempty"`
-	IsVerified  bool `json:"is_verified" binding:"omitempty"`
+	UserID      uint `json:"userId" binding:"required"`
+	ApartmentID uint `json:"apartmentId" binding:"required"`
+	RoleID      uint `json:"roleId" binding:"required"`
+	Unit        uint `json:"unit" binding:"omitempty"`
+	No          uint `json:"no" binding:"omitempty"`
+	IsVerified  bool `json:"isVerified" binding:"omitempty"`
 }
 
 func (r *RegisterRequest) ToUserEntity() *model.User {
@@ -38,7 +48,7 @@ func (r *RegisterRequest) ToUserEntity() *model.User {
 	}
 }
 
-func (r *RegisterRequest) ToProfileEntity() *model.Profile {
+func (r *ProfileRequest) ToProfileEntity() *model.Profile {
 	return &model.Profile{
 		Nickname:       r.Nickname,
 		ProfileImageId: r.ProfileImageId,
