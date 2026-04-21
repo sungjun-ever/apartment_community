@@ -44,6 +44,6 @@ func (u userRepository) FindByID(ctx context.Context, id uint) (model.User, erro
 
 func (u userRepository) FindByEmail(ctx context.Context, email string) (model.User, error) {
 	var user model.User
-	err := u.conn(ctx).Preload("Profiles").Where("email = ?", email).First(&user).Error
+	err := u.conn(ctx).Preload("Profile").Where("email = ?", email).First(&user).Error
 	return user, err
 }
