@@ -5,10 +5,10 @@ import (
 	"log/slog"
 )
 
-func InfoLogWithContext(ctx context.Context, message, traceId string) {
-	slog.InfoContext(ctx, message, "trace_id:", traceId)
+func InfoLogWithContext(ctx context.Context, message string) {
+	slog.InfoContext(ctx, message, "trace_id:", GetTraceID(ctx))
 }
 
-func ErrorLogWithContext(ctx context.Context, message, methodName, traceId string) {
-	slog.ErrorContext(ctx, message, "method:", methodName, "trace_id:", traceId)
+func ErrorLogWithContext(ctx context.Context, message, methodName string) {
+	slog.ErrorContext(ctx, message, "method:", methodName, "trace_id:", GetTraceID(ctx))
 }

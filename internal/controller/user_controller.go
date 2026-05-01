@@ -20,8 +20,7 @@ func NewUserController(us service.UserService) *UserController {
 
 func (u *UserController) GetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-	utils.InfoLogWithContext(ctx, "start GetUsers", traceID)
+	utils.InfoLogWithContext(ctx, "start GetUsers")
 
 	users, err := u.us.FindAllUsers(ctx)
 
@@ -35,13 +34,12 @@ func (u *UserController) GetUsers(c *gin.Context) {
 
 func (u *UserController) GetUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-	utils.InfoLogWithContext(ctx, "start GetUser", traceID)
+	utils.InfoLogWithContext(ctx, "start GetUser")
 
 	var uri user.UriRequest
 
 	if err := c.ShouldBindUri(&uri); err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "GetUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "GetUser")
 		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}
@@ -60,14 +58,12 @@ func (u *UserController) GetUser(c *gin.Context) {
 
 func (u *UserController) StoreUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-
-	utils.InfoLogWithContext(ctx, "start StoreUser", traceID)
+	utils.InfoLogWithContext(ctx, "start StoreUser")
 
 	var req user.RegisterRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "StoreUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "StoreUser")
 		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}
@@ -86,14 +82,12 @@ func (u *UserController) StoreUser(c *gin.Context) {
 
 func (u *UserController) EditUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-
-	utils.InfoLogWithContext(ctx, "start EditUser", traceID)
+	utils.InfoLogWithContext(ctx, "start EditUser")
 
 	var profile user.ProfileRequest
 
 	if err := c.ShouldBindJSON(&profile); err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "EditUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "EditUser")
 		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}
@@ -112,14 +106,12 @@ func (u *UserController) EditUser(c *gin.Context) {
 
 func (u *UserController) EditBelongApart(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-
-	utils.InfoLogWithContext(ctx, "start EditBelongApart", traceID)
+	utils.InfoLogWithContext(ctx, "start EditBelongApart")
 
 	var ubaRequest model.UserBelongApartment
 
 	if err := c.ShouldBindBodyWithJSON(&ubaRequest); err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "EditBelongApart", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "EditBelongApart")
 		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}
@@ -135,14 +127,12 @@ func (u *UserController) EditBelongApart(c *gin.Context) {
 
 func (u *UserController) DestroyUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	traceID := utils.GetTraceID(ctx)
-
-	utils.InfoLogWithContext(ctx, "start DestroyUser", traceID)
+	utils.InfoLogWithContext(ctx, "start DestroyUser")
 
 	var uri user.UriRequest
 
 	if err := c.ShouldBindUri(&uri); err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "DestroyUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "DestroyUser")
 		c.JSON(400, dto.ErrorResponse("잘못된 요청입니다."))
 		return
 	}

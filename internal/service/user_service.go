@@ -33,12 +33,10 @@ func NewUserService(
 }
 
 func (u *UserService) FindAllUsers(ctx context.Context) ([]model.User, error) {
-	traceID := utils.GetTraceID(ctx)
-
 	users, err := u.userRepo.FindAll(ctx)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, "FindAllUsers", err.Error(), traceID)
+		utils.ErrorLogWithContext(ctx, "FindAllUsers", err.Error())
 		return []model.User{}, err
 	}
 
@@ -46,12 +44,10 @@ func (u *UserService) FindAllUsers(ctx context.Context) ([]model.User, error) {
 }
 
 func (u *UserService) FindUser(ctx context.Context, id uint) (*model.User, error) {
-	traceID := utils.GetTraceID(ctx)
-
 	getUser, err := u.userRepo.FindByID(ctx, id)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "FindUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "FindUser")
 		return nil, err
 	}
 
@@ -59,12 +55,10 @@ func (u *UserService) FindUser(ctx context.Context, id uint) (*model.User, error
 }
 
 func (u *UserService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	traceID := utils.GetTraceID(ctx)
-
 	user, err := u.userRepo.FindByEmail(ctx, email)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "GetUserByEmail", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "GetUserByEmail")
 		return nil, err
 	}
 
@@ -72,11 +66,9 @@ func (u *UserService) GetUserByEmail(ctx context.Context, email string) (*model.
 }
 
 func (u *UserService) CreateUser(ctx context.Context, req user.RegisterRequest) (createdUser *model.User, err error) {
-	traceID := utils.GetTraceID(ctx)
-
 	defer func() {
 		if err != nil {
-			utils.ErrorLogWithContext(ctx, err.Error(), "CreateUser", traceID)
+			utils.ErrorLogWithContext(ctx, err.Error(), "CreateUser")
 		}
 	}()
 
@@ -129,21 +121,20 @@ func (u *UserService) CreateUser(ctx context.Context, req user.RegisterRequest) 
 }
 
 func (u *UserService) UpdateUser(ctx context.Context, profile user.ProfileRequest) (*model.User, error) {
-	traceID := utils.GetTraceID(ctx)
 	profileEntity := profile.ToProfileEntity()
 
 	// TODO : 로그인 한 사용자의 정보를 확인 후 profileEntity.UserID에 넣어줘야함
 	err := u.profileRepo.UpdateByUserID(ctx, *profileEntity, profileEntity.UserID)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser")
 		return nil, err
 	}
 
 	getUser, err := u.userRepo.FindByID(ctx, profileEntity.UserID)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateUser")
 		return nil, err
 	}
 
@@ -151,12 +142,10 @@ func (u *UserService) UpdateUser(ctx context.Context, profile user.ProfileReques
 }
 
 func (u *UserService) UpdateBelongApart(ctx context.Context, data model.UserBelongApartment) error {
-	traceID := utils.GetTraceID(ctx)
-
 	_, err := u.belongApartRepo.Create(ctx, &data)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateBelongApart", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "UpdateBelongApart")
 		return err
 	}
 
@@ -164,12 +153,10 @@ func (u *UserService) UpdateBelongApart(ctx context.Context, data model.UserBelo
 }
 
 func (u *UserService) DeleteUser(ctx context.Context, id uint) error {
-	traceID := utils.GetTraceID(ctx)
-
 	_, err := u.userRepo.FindByID(ctx, id)
 
 	if err != nil {
-		utils.ErrorLogWithContext(ctx, err.Error(), "DeleteUser", traceID)
+		utils.ErrorLogWithContext(ctx, err.Error(), "DeleteUser")
 		return err
 	}
 

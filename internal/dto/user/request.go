@@ -15,6 +15,11 @@ type ProfileRequest struct {
 	ProfileImageId *uint  `json:"profileImageId" binding:"omitempty"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
 type RegisterRequest struct {
 	Email           string `json:"email" binding:"required,email"`
 	Password        string `json:"password" binding:"required,password_check"`

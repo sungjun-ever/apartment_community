@@ -10,6 +10,7 @@ import (
 
 type Container struct {
 	UserController *controller.UserController
+	AuthController *controller.AuthController
 }
 
 func NewContainer(db *gorm.DB) *Container {
@@ -21,5 +22,6 @@ func NewContainer(db *gorm.DB) *Container {
 
 	return &Container{
 		UserController: controller.NewUserController(*userSvc),
+		AuthController: controller.NewAuthController(*userSvc),
 	}
 }
