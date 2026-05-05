@@ -1,8 +1,12 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"apart_community/registry"
 
-func SetUpRouter(router *gin.Engine) *gin.Engine {
+	"github.com/gin-gonic/gin"
+)
+
+func SetUpRouter(router *gin.Engine, c *registry.Container) *gin.Engine {
 	api := router.Group("/api")
 	{
 		v1 := api.Group("/v1")
