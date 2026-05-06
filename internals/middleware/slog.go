@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SlogMiddleware(logger *slog.Logger) gin.HandlerFunc {
+func SlogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
@@ -16,7 +16,7 @@ func SlogMiddleware(logger *slog.Logger) gin.HandlerFunc {
 		c.Next()
 
 		traceID, _ := c.Get("trace_id")
-		logger.Info("request",
+		slog.Info("request",
 			slog.String("ip", c.ClientIP()),
 			slog.String("user_agent", c.Request.UserAgent()),
 			slog.String("trace_id", traceID.(string)),
@@ -26,18 +26,5 @@ func SlogMiddleware(logger *slog.Logger) gin.HandlerFunc {
 			slog.Int("status", c.Writer.Status()),
 			slog.Duration("latency", time.Since(start)),
 		)
-
-		if len(c.Errors) > 0 {
-			for _, err := range c.Errors {
-				logger.Error("request error",
-					slog.String("ip", c.ClientIP()),
-					slog.String("user_agent", c.Request.UserAgent()),
-					slog.String("trace_id", traceID.(string)),
-					slog.String("method", c.Request.Method),
-					slog.String("path", path),
-					slog.String("error", err.Error()),
-				)
-			}
-		}
 	}
 }
