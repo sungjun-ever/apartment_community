@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"apart_community/internals/dto"
+	"apart_community/internals/utils"
 	"context"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 func RateLimitMiddleware(rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
-		key := "rate_limit:" + c.ClientIP()
+		key := utils.RateLimitKey(c.ClientIP())
 
 		count, err := rdb.Incr(ctx, key).Result()
 
