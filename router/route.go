@@ -1,12 +1,16 @@
 package router
 
 import (
+	"apart_community/internals/middleware"
 	"apart_community/registry"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetUpRouter(router *gin.Engine, c *registry.Container) *gin.Engine {
+func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
+	router.Use(middleware.RateLimitMiddleware(ct.Redis))
+	router.Use(middleware.TraceIdMiddleware())
+
 	api := router.Group("/api")
 	{
 		v1 := api.Group("/v1")
