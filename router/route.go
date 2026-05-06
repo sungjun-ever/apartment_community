@@ -3,13 +3,18 @@ package router
 import (
 	"apart_community/internals/middleware"
 	"apart_community/registry"
+	"log/slog"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	router.Use(middleware.RateLimitMiddleware(ct.Redis))
 	router.Use(middleware.TraceIdMiddleware())
+	router.Use(middleware.SlogMiddleware(logger))
 
 	api := router.Group("/api")
 	{
