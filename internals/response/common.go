@@ -1,4 +1,4 @@
-package dto
+package response
 
 import "github.com/gin-gonic/gin"
 
@@ -45,12 +45,7 @@ func AbortWithError(c *gin.Context, status int, code, message string) {
 	c.AbortWithStatusJSON(status, response)
 }
 
-func Fail(c *gin.Context, status *int, code, message string) {
-	if status == nil {
-		status = new(int)
-		*status = 400
-	}
-
+func Fail(c *gin.Context, status int, code, message string) {
 	response := Response{
 		Success: false,
 		Error: &ErrorInfo{
@@ -59,5 +54,5 @@ func Fail(c *gin.Context, status *int, code, message string) {
 		},
 	}
 
-	c.JSON(*status, response)
+	c.JSON(status, response)
 }
