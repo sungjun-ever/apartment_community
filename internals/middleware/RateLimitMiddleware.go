@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"apart_community/internals/dto"
 	"context"
 	"time"
 
@@ -16,7 +17,7 @@ func RateLimitMiddleware(rdb *redis.Client) gin.HandlerFunc {
 		count, err := rdb.Incr(ctx, key).Result()
 
 		if err != nil {
-			c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+			dto.AbortWithError(c, 500, "S001", "INTERNAL_SERVER_ERROR")
 			return
 		}
 
@@ -25,7 +26,7 @@ func RateLimitMiddleware(rdb *redis.Client) gin.HandlerFunc {
 		}
 
 		if count > 60 {
-			c.AbortWithStatusJSON(429, gin.H{"message": "Too Many Request"})
+			dto.AbortWithError(c, 429, "C004", "TOO_MANY_REQUEST")
 			return
 		}
 
