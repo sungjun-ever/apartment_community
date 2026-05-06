@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ErrorHandler() gin.HandlerFunc {
+func ErrorLogMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
