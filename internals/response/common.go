@@ -34,17 +34,6 @@ func OK(c *gin.Context, status *int, data interface{}, meta *Meta) {
 	})
 }
 
-func AbortWithError(c *gin.Context, status int, code, message string) {
-	response := Response{
-		Success: false,
-		Error: &ErrorInfo{
-			Code:    code,
-			Message: message,
-		},
-	}
-	c.AbortWithStatusJSON(status, response)
-}
-
 func Fail(c *gin.Context, status int, code, message string) {
 	response := Response{
 		Success: false,
