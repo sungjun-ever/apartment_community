@@ -2,18 +2,24 @@ package errUtils
 
 type AppError struct {
 	Err     error
-	Message string
 	Status  int
 	Code    string
+	Message string
 }
 
 func (e *AppError) Error() string {
-	if e.Err != nil {
-		return e.Err.Error()
-	}
-	return e.Message
+	return e.Err.Error()
 }
 
 func (e *AppError) Unwrap() error {
 	return e.Err
+}
+
+func NewAppError(err error, status int, code string) *AppError {
+	return &AppError{
+		Err:     err,
+		Status:  status,
+		Code:    code,
+		Message: GetErrorMessage(code),
+	}
 }
