@@ -6,9 +6,14 @@ import (
 )
 
 type Container struct {
+	Postgres *gorm.DB
+	Redis    *redis.Client
 }
 
 func NewContainer(db *gorm.DB, rdb *redis.Client) *Container {
 
-	return &Container{}
+	return &Container{
+		Postgres: db,
+		Redis:    rdb,
+	}
 }
