@@ -17,8 +17,9 @@ type Container struct {
 
 func NewContainer(db *gorm.DB, rdb *redis.Client) *Container {
 	userRepo := domain.NewGormUserRepository(db)
+	profileRepo := domain.NewGormProfileRepository(db)
 
-	userSvc := service.NewService(userRepo, db)
+	userSvc := service.NewService(userRepo, profileRepo, db)
 
 	return &Container{
 		Postgres:       db,
