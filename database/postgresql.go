@@ -1,7 +1,9 @@
 package database
 
 import (
-	"apart_community/internals/model"
+	apartmentDomain "apart_community/internals/apartment/domain"
+	attachmentDomain "apart_community/internals/attachment/domain"
+	userDomain "apart_community/internals/user/domain"
 	"fmt"
 	"os"
 
@@ -28,12 +30,12 @@ func ConnectToPostgres() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
-		&model.User{},
-		&model.Profile{},
-		&model.Apartment{},
-		&model.Attachment{},
-		&model.Role{},
-		&model.UserBelongApartment{},
+		&userDomain.User{},
+		&userDomain.Profile{},
+		&apartmentDomain.Apartment{},
+		&attachmentDomain.Attachment{},
+		&userDomain.Role{},
+		&userDomain.UserBelongApartment{},
 	)
 
 	if err != nil {

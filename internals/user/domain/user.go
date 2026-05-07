@@ -1,14 +1,26 @@
-package model
+package domain
 
-import "gorm.io/gorm"
+import (
+	"math/rand"
+	"time"
+
+	"github.com/oklog/ulid/v2"
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
 	PublicID string  `gorm:"uniqueIndex;type:char(26);not null"`
-	Email    string  `gorm:"unqiueIndex; not null" json:"email"`
+	Email    string  `gorm:"uniqueIndex; not null" json:"email"`
 	Password string  `josn:"password; not null" json:"password"`
 	Profile  Profile `gorm:"foreignKey:UserID"`
 	Roles    []Role  `gorm:"many2many:user_belong_apartments"`
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	entropy := ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0)
+	u.PublicID = ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String()
+	return
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) error {
