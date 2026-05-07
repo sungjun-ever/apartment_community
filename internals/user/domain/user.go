@@ -12,7 +12,7 @@ type User struct {
 	gorm.Model
 	PublicID string  `gorm:"uniqueIndex;type:char(26);not null"`
 	Email    string  `gorm:"uniqueIndex; not null" json:"email"`
-	Password string  `josn:"password; not null" json:"password"`
+	Password string  `json:"password; not null" json:"password"`
 	Profile  Profile `gorm:"foreignKey:UserID"`
 	Roles    []Role  `gorm:"many2many:user_belong_apartments"`
 }
