@@ -6,6 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type BaseRepository[T any] interface {
+	WithTrx(tx *gorm.DB) BaseRepository[T]
+	FindAll(ctx context.Context) ([]T, error)
+	FindByID(ctx context.Context, id uint) (T, error)
+	Create(ctx context.Context, entity *T) (T, error)
+	Update(ctx context.Context, entity *T) (T, error)
+	Delete(ctx context.Context, id uint) error
+}
+
 type GormBaseRepository[T any] struct {
 	db *gorm.DB
 }
@@ -18,7 +27,7 @@ func (r *GormBaseRepository[T]) conn(ctx context.Context) *gorm.DB {
 	return r.db.WithContext(ctx)
 }
 
-func (r *GormBaseRepository[T]) WithTrx(ctx context.Context, tx *gorm.DB) *GormBaseRepository[T] {
+func (r *GormBaseRepository[T]) WithTrx(tx *gorm.DB) *GormBaseRepository[T] {
 	return &GormBaseRepository[T]{db: tx}
 }
 
