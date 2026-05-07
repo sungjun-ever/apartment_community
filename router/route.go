@@ -10,8 +10,8 @@ import (
 func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 	router.Use(middleware.RateLimitMiddleware(ct.Redis))
 	router.Use(middleware.TraceIdMiddleware())
-	router.Use(middleware.SlogMiddleware())
-	router.Use(middleware.ErrorHandler())
+	router.Use(middleware.RequestLogMiddleware())
+	router.Use(middleware.ErrorLogMiddleWare())
 
 	api := router.Group("/api")
 	{
