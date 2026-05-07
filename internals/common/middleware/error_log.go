@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"apart_community/internals/errUtils"
-	"apart_community/internals/response"
+	"apart_community/internals/common/errUtils"
+	"apart_community/internals/common/response"
 	"errors"
 	"log/slog"
 

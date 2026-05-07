@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"apart_community/internals/errUtils"
-	"apart_community/internals/utils"
+	"apart_community/internals/common/errUtils"
+	"apart_community/internals/common/utils"
 	"context"
 	"time"
 

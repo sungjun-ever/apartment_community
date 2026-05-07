@@ -1,7 +1,7 @@
 package router
 
 import (
-	"apart_community/internals/middleware"
+	"apart_community/internals/common/middleware"
 	"apart_community/registry"
 
 	"github.com/gin-gonic/gin"
