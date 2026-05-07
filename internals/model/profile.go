@@ -5,6 +5,6 @@ import "gorm.io/gorm"
 type Profile struct {
 	gorm.Model
 	UserID   uint
-	nickname string      `gorm:"default:anonymous; unique; not null"`
-	ImageID  *Attachment `gorm:"polymorphic:Target"`
+	Nickname string      `gorm:"default:anonymous; unique; not null" json:"nickname"`
+	ImageID  *Attachment `gorm:"polymorphic:Target" json:"imageId"`
 }
