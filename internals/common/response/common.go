@@ -21,13 +21,8 @@ type Response struct {
 	Meta    *Meta       `json:"meta,omitempty"`
 }
 
-func OK(c *gin.Context, status *int, data interface{}, meta *Meta) {
-	if status == nil {
-		status = new(int)
-		*status = 200
-	}
-
-	c.JSON(*status, Response{
+func OK(c *gin.Context, status int, data interface{}, meta *Meta) {
+	c.JSON(status, Response{
 		Success: true,
 		Data:    data,
 		Meta:    meta,
