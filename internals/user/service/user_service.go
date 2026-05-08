@@ -45,7 +45,9 @@ func (us *UserService) CreateUser(gc *gin.Context, rq domain.RegisterRequest) (*
 		existUser, err := txUserRepo.FindByEmail(gc, userEntity.Email)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return errUtils.NewAppError(err, 500, "S001")
+			}
 		}
 
 		if existUser != nil {
