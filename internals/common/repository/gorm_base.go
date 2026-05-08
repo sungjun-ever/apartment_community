@@ -23,7 +23,7 @@ func NewGormBaseRepository[T any](db *gorm.DB) *GormBaseRepository[T] {
 	return &GormBaseRepository[T]{db: db}
 }
 
-func (r *GormBaseRepository[T]) conn(ctx context.Context) *gorm.DB {
+func (r *GormBaseRepository[T]) Conn(ctx context.Context) *gorm.DB {
 	return r.db.WithContext(ctx)
 }
 
@@ -38,12 +38,12 @@ func (r *GormBaseRepository[T]) FindAll(ctx context.Context) ([]*T, error) {
 
 func (r *GormBaseRepository[T]) FindById(ctx context.Context, id uint) (*T, error) {
 	var entity T
-	err := r.conn(ctx).First(&entity, id).Error
+	err := r.Conn(ctx).First(&entity, id).Error
 	return &entity, err
 }
 
 func (r *GormBaseRepository[T]) Create(ctx context.Context, entity *T) (*T, error) {
-	err := r.conn(ctx).Create(entity).Error
+	err := r.Conn(ctx).Create(entity).Error
 	return entity, err
 }
 
