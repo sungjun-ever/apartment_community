@@ -28,7 +28,7 @@ func (u *User) AfterDelete(tx *gorm.DB) error {
 		return err
 	}
 
-	if err := tx.Model(&UserBelongApartment{}).Where("user_id = ?", u.ID).Delete(&UserBelongApartment{}).Error; err != nil {
+	if err := tx.Model(&UserApartmentRole{}).Where("user_id = ?", u.ID).Delete(&UserApartmentRole{}).Error; err != nil {
 		return err
 	}
 

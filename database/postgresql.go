@@ -35,7 +35,7 @@ func ConnectToPostgres() *gorm.DB {
 		&apartmentDomain.Apartment{},
 		&attachmentDomain.Attachment{},
 		&userDomain.Role{},
-		&userDomain.UserBelongApartment{},
+		&userDomain.UserApartmentRole{},
 	)
 
 	if err != nil {
