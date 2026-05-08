@@ -8,10 +8,9 @@ type ErrorInfo struct {
 }
 
 type Meta struct {
-	Page       int `json:"page,omitempty"`
-	PerPage    int `json:"per_page,omitempty"`
-	Total      int `json:"total,omitempty"`
-	TotalPages int `json:"total_pages,omitempty"`
+	Page  int   `json:"page,omitempty"`
+	Size  int   `json:"size,omitempty"`
+	Total int64 `json:"total,omitempty"`
 }
 
 type Response struct {
@@ -22,11 +21,13 @@ type Response struct {
 }
 
 func OK(c *gin.Context, status int, data interface{}, meta *Meta) {
-	c.JSON(status, Response{
+	response := Response{
 		Success: true,
 		Data:    data,
 		Meta:    meta,
-	})
+	}
+	
+	c.JSON(status, response)
 }
 
 func Fail(c *gin.Context, status int, code, message string) {
