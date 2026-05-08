@@ -20,19 +20,15 @@ func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 			v1.POST("/login", func(c *gin.Context) {
 				c.String(200, "this is login")
 			})
-			v1.POST("/register", func(c *gin.Context) {
-				c.String(200, "this is register")
-			})
+
+			v1.POST("/register", ct.UserController.StoreUser)
 
 			users := v1.Group("/users")
 			{
-				users.GET("/", func(c *gin.Context) {
-					c.String(200, "this is get users")
-				})
+				users.GET("/", ct.UserController.GetUsers)
 
-				users.GET("/:publicID", func(c *gin.Context) {
-					c.String(200, "this is get user")
-				})
+				users.GET("/:publicID", ct.UserController.GetUser)
+
 				users.PUT("/:publicID", func(c *gin.Context) {
 					c.String(200, "this is update user")
 				})
