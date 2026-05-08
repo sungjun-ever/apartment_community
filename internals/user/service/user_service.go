@@ -3,9 +3,9 @@ package service
 import (
 	"apart_community/internals/common/errUtils"
 	"apart_community/internals/user/domain"
+	"context"
 	"errors"
 
-	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -28,24 +28,50 @@ func NewService(
 	}
 }
 
-func (us *UserService) CreateUser(gc *gin.Context, rq domain.RegisterRequest) (*domain.User, error) {
+func (us *UserService) FindUsers(c context.Context, rq domain.PaginationRequest) ([]*domain.User, int64, error) {
+	offset := (rq.Page - 1) * rq.Size
+	users, total, err := us.userRepo.FindAll(c, offset, rq.Size)
+
+	if err != nil {
+		return nil, 0, errUtils.NewAppError(err, 500, "S001")
+	}
+
+	return users, total, nil
+}
+
+func (us *UserService) FindUser(c context.Context, rq domain.PublicIdUriRequest) (*domain.User, error) {
+	user, err := us.userRepo.FindByPublicId(c, rq.PublicID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errUtils.NewAppError(errors.New("사용자가 존재하지 않음"), 404, "U001")
+		}
+
+		return nil, errUtils.NewAppError(err, 500, "S001")
+	}
+
+	return user, nil
+}
+
+func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) (*domain.User, error) {
 	userEntity := rq.ToUserEntity()
 	profileEntity := rq.ToProfileEntity()
 	createdUser := &domain.User{}
 
 	if userEntity == nil || profileEntity == nil {
-		_ = gc.Error(errUtils.NewAppError(errors.New("엔티티 생성 데이터가 없음"), 500, "S001"))
-		return nil, nil
+		return nil, errUtils.NewAppError(errors.New("엔티티 생성 데이터가 없음"), 500, "S001")
 	}
 
 	err := us.db.Transaction(func(tx *gorm.DB) error {
 		txUserRepo := us.userRepo.WithTrx(tx)
 		txProfileRepo := us.profileRepo.WithTrx(tx)
 
-		existUser, err := txUserRepo.FindByEmail(gc, userEntity.Email)
+		existUser, err := txUserRepo.FindByEmail(c, userEntity.Email)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return errUtils.NewAppError(err, 500, "S001")
+			}
 		}
 
 		if existUser != nil {
@@ -60,7 +86,7 @@ func (us *UserService) CreateUser(gc *gin.Context, rq domain.RegisterRequest) (*
 
 		userEntity.Password = string(hashed)
 
-		user, err := txUserRepo.Create(gc, userEntity)
+		user, err := txUserRepo.Create(c, userEntity)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, "S001")
@@ -68,7 +94,7 @@ func (us *UserService) CreateUser(gc *gin.Context, rq domain.RegisterRequest) (*
 
 		profileEntity.UserID = user.ID
 
-		profile, err := txProfileRepo.Create(gc, profileEntity)
+		profile, err := txProfileRepo.Create(c, profileEntity)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, "S001")

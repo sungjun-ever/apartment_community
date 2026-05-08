@@ -14,17 +14,18 @@ func RequestLogMiddleware() gin.HandlerFunc {
 		query := c.Request.URL.RawQuery
 
 		c.Next()
-
+		
 		traceID, _ := c.Get("trace_id")
+
 		slog.Info("request",
-			slog.String("ip", c.ClientIP()),
-			slog.String("user_agent", c.Request.UserAgent()),
-			slog.String("trace_id", traceID.(string)),
-			slog.String("method", c.Request.Method),
-			slog.String("path", path),
-			slog.String("query", query),
-			slog.Int("status", c.Writer.Status()),
-			slog.Duration("latency", time.Since(start)),
+			"ip", c.ClientIP(),
+			"user_agent", c.Request.UserAgent(),
+			"trace_id", traceID,
+			"method", c.Request.Method,
+			"path", path,
+			"query", query,
+			"status", c.Writer.Status(),
+			"latency", time.Since(start),
 		)
 	}
 }
