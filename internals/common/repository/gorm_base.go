@@ -8,7 +8,7 @@ import (
 
 type BaseRepository[T any] interface {
 	WithTrx(tx *gorm.DB) BaseRepository[T]
-	FindAll(ctx context.Context) ([]T, error)
+	FindAll(ctx context.Context, offset, limit int) ([]T, error)
 	FindByID(ctx context.Context, id uint) (T, error)
 	Create(ctx context.Context, entity *T) (T, error)
 	Update(ctx context.Context, entity *T) (T, error)
@@ -31,9 +31,21 @@ func (r *GormBaseRepository[T]) WithTrx(tx *gorm.DB) *GormBaseRepository[T] {
 	return &GormBaseRepository[T]{db: tx}
 }
 
-func (r *GormBaseRepository[T]) FindAll(ctx context.Context) ([]*T, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *GormBaseRepository[T]) FindAll(ctx context.Context, offset, limit int) ([]*T, int64, error) {
+	var entities []*T
+	var total int64
+
+	if err := r.Conn(ctx).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := r.Conn(ctx).Limit(limit).Offset(offset).Find(&entities).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entities, total, err
 }
 
 func (r *GormBaseRepository[T]) FindById(ctx context.Context, id uint) (*T, error) {
