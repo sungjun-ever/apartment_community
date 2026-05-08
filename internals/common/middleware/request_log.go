@@ -19,7 +19,7 @@ func RequestLogMiddleware() gin.HandlerFunc {
 		slog.Info("request",
 			slog.String("ip", c.ClientIP()),
 			slog.String("user_agent", c.Request.UserAgent()),
-			slog.String("trace_id", traceID.(string)),
+			slog.Any("trace_id", traceID),
 			slog.String("method", c.Request.Method),
 			slog.String("path", path),
 			slog.String("query", query),

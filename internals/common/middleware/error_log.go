@@ -20,7 +20,7 @@ func ErrorLogMiddleWare() gin.HandlerFunc {
 
 			if errors.As(err, &appErr) {
 				slog.Error("Application Error",
-					"trace_id", traceID.(string),
+					"trace_id", traceID,
 					"code", appErr.Status,
 					"message", appErr.Message,
 					"error", appErr.Err,
@@ -28,7 +28,7 @@ func ErrorLogMiddleWare() gin.HandlerFunc {
 				response.Fail(c, appErr.Status, appErr.Code, appErr.Message)
 			} else {
 				slog.Error("Unknown Error",
-					"trace_id", traceID.(string),
+					"trace_id", traceID,
 					"error", err,
 				)
 				response.Fail(c, 500, "S001", "INTERNAL_SERVER_ERROR")
