@@ -5,21 +5,15 @@ import (
 	"apart_community/database"
 	"apart_community/registry"
 	"apart_community/router"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config.LoadEnv()
+	env := config.LoadEnv()
 
-	db := database.ConnectToPostgres()
-	rdb := database.ConnectToRedis()
-
-	sqlDB, _ := db.DB()
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(2 * time.Minute)
+	db := database.ConnectToPostgres(env)
+	rdb := database.ConnectToRedis(env)
 
 	container := registry.NewContainer(db, rdb)
 
