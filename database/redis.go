@@ -1,14 +1,14 @@
 package database
 
 import (
-	"os"
+	"apart_community/config"
 
 	"github.com/go-redis/redis/v8"
 )
 
-func ConnectToRedis() *redis.Client {
+func ConnectToRedis(env *config.Config) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
+		Addr:     env.RedisHost + ":" + env.RedisPort,
 		Password: "",
 		DB:       0,
 	})
