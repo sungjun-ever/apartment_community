@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Building struct {
 	gorm.Model
-	ApartmentID uint    `gorm:"uniqueIndex;not null" json:"apartmentId"`
+	ApartmentID uint    `gorm:"index" json:"apartmentId"`
 	Name        *string `json:"name"`
-	Units       []Unit
+	Units       []Unit  `gorm:"foreignKey:BuildingID"`
 }

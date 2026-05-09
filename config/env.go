@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/joho/godotenv"
@@ -26,6 +25,11 @@ type Config struct {
 	JwtSecret       string `env:"JWT_SECRET"`
 }
 
+type Flag struct {
+	Mode string
+	Seed bool
+}
+
 func LoadConfig(environment *string) *Config {
 	_ = godotenv.Load("../.env." + *environment)
 	cfg := Config{}
@@ -45,13 +49,19 @@ func isValidEnvironment(environment *string) bool {
 	return false
 }
 
-func LoadEnv() *Config {
+func ParseFlags() *Flag {
 	environment := flag.String("e", "dev", "")
-	flag.Usage = func() {
-		fmt.Println("Usage: server -e {mode}")
-		os.Exit(1)
-	}
+	seedFlag := flag.Bool("seed", false, "seed table name")
 	flag.Parse()
+
+	return &Flag{
+		Mode: *environment,
+		Seed: *seedFlag,
+	}
+}
+
+func LoadEnv(parsedFlag *Flag) *Config {
+	environment := &parsedFlag.Mode
 
 	if !isValidEnvironment(environment) {
 		log.Fatalf("Invalid environment: %s\n", *environment)
