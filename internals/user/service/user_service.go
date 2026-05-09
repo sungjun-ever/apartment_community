@@ -2,11 +2,11 @@ package service
 
 import (
 	"apart_community/internals/common/errUtils"
+	"apart_community/internals/common/utils"
 	"apart_community/internals/user/domain"
 	"context"
 	"errors"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -78,7 +78,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 			return errUtils.NewAppError(errors.New("이미 존재하는 이메일"), 400, "U002")
 		}
 
-		hashed, err := bcrypt.GenerateFromPassword([]byte(userEntity.Password), bcrypt.DefaultCost)
+		hashed, err := utils.HashPassword(userEntity.Password)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, "S001")
