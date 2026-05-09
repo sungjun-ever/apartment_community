@@ -10,10 +10,13 @@ import (
 )
 
 func main() {
-	env := config.LoadEnv()
+	flags := config.ParseFlags()
+	env := config.LoadEnv(flags)
 
 	db := database.ConnectToPostgres(env)
 	rdb := database.ConnectToRedis(env)
+
+	database.Seeder(db, flags)
 
 	container := registry.NewContainer(db, rdb)
 
