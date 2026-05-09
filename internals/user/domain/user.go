@@ -1,34 +1,28 @@
 package domain
 
 import (
-	"math/rand"
-	"time"
+	"apart_community/internals/common/utils"
 
-	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	PublicID string  `gorm:"uniqueIndex;type:char(26);not null"`
-	Email    string  `gorm:"uniqueIndex; not null" json:"email"`
-	Password string  `gorm:"not null" json:"password"`
-	Profile  Profile `gorm:"foreignKey:UserID"`
-	Roles    []Role  `gorm:"many2many:user_belong_apartments"`
+	PublicID   string         `gorm:"uniqueIndex;type:char(26);not null"`
+	Email      string         `gorm:"uniqueIndex; not null" json:"email"`
+	Password   string         `gorm:"not null" json:"password"`
+	Profile    Profile        `gorm:"foreignKey:UserID"`
+	Roles      []UserRole     `gorm:"foreignKey:UserID"`
+	UnitsRoles []UserUnitRole `gorm:"foreignKey:UserID"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	entropy := ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0)
-	u.PublicID = ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String()
+	u.PublicID = utils.GeneratePublicId()
 	return
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) error {
 	if err := tx.Model(&User{}).Where("id = ?", u.ID).Delete(&User{}).Error; err != nil {
-		return err
-	}
-
-	if err := tx.Model(&UserApartmentRole{}).Where("user_id = ?", u.ID).Delete(&UserApartmentRole{}).Error; err != nil {
 		return err
 	}
 
