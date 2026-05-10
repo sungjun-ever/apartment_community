@@ -4,6 +4,7 @@ import (
 	"apart_community/internals/common/errUtils"
 	"apart_community/internals/common/utils"
 	"apart_community/internals/user/domain"
+	"apart_community/internals/user/repository"
 	"context"
 	"errors"
 
@@ -11,14 +12,14 @@ import (
 )
 
 type UserService struct {
-	userRepo    domain.GormUserRepository
-	profileRepo domain.GormProfileRepository
+	userRepo    repository.GormUserRepository
+	profileRepo repository.GormProfileRepository
 	db          *gorm.DB
 }
 
 func NewService(
-	userRepo domain.GormUserRepository,
-	profileRepo domain.GormProfileRepository,
+	userRepo repository.GormUserRepository,
+	profileRepo repository.GormProfileRepository,
 	db *gorm.DB,
 ) *UserService {
 	return &UserService{
