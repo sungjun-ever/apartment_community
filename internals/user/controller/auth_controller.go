@@ -5,6 +5,7 @@ import (
 	"apart_community/internals/common/response"
 	"apart_community/internals/user/domain"
 	"apart_community/internals/user/service"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,14 +35,30 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := ac.as.IssueToken(user)
+	refreshDuration := time.Hour * 24 * 7
+
+	accessToken, refreshToken, err := ac.as.IssueToken(user, refreshDuration)
 
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	c.SetCookie("refreshToken", *refreshToken, 3600*24*7, "/", "", false, true)
+	session := domain.UserSession{
+		RefreshToken: *refreshToken,
+		IP:           c.ClientIP(),
+		UserAgent:    c.Request.UserAgent(),
+		CreatedAt:    time.Now().Format(time.DateTime),
+	}
+
+	err = ac.as.CreateSession(c, user.PublicID, &session, refreshDuration)
+
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.SetCookie("refreshToken", *refreshToken, int(refreshDuration.Seconds()), "/", "", false, true)
 
 	response.OK(c, 200, gin.H{
 		"access_token": accessToken,

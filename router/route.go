@@ -17,12 +17,15 @@ func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 	{
 		v1 := api.Group("/v1")
 		{
+
 			v1.POST("/login", ct.AuthController.Login)
 
 			v1.POST("/register", ct.UserController.StoreUser)
 
 			users := v1.Group("/users")
 			{
+				users.Use(middleware.AuthMiddleware(ct.RedisAuthRepo))
+
 				users.GET("/", ct.UserController.GetUsers)
 
 				users.GET("/:publicID", ct.UserController.GetUser)

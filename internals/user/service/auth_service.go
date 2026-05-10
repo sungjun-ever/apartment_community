@@ -5,23 +5,34 @@ import (
 	"apart_community/internals/common/utils"
 	"apart_community/internals/common/utils/token"
 	"apart_community/internals/user/domain"
+	"apart_community/internals/user/repository"
 	"context"
 	"errors"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
 type AuthService struct {
-	userRepo domain.GormUserRepository
-	db       *gorm.DB
+	sessionRepo repository.RedisAuthRepository
+	userRepo    repository.GormUserRepository
+	db          *gorm.DB
+	redis       *redis.Client
 }
 
-func NewAuthService(userRepo domain.GormUserRepository, db *gorm.DB) *AuthService {
+func NewAuthService(
+	sessionRepo repository.RedisAuthRepository,
+	userRepo repository.GormUserRepository,
+	db *gorm.DB,
+	redis *redis.Client,
+) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
-		db:       db,
+		sessionRepo: sessionRepo,
+		userRepo:    userRepo,
+		db:          db,
+		redis:       redis,
 	}
 }
 
@@ -45,7 +56,7 @@ func (s *AuthService) Auth(c context.Context, usb domain.UserAuthBase) (*domain.
 	return user, nil
 }
 
-func (s *AuthService) IssueToken(user *domain.User) (*string, *string, error) {
+func (s *AuthService) IssueToken(user *domain.User, duration time.Duration) (*string, *string, error) {
 	accessClaims := &domain.AccessClaims{
 		PublicID: user.PublicID,
 		Email:    user.Email,
@@ -68,7 +79,7 @@ func (s *AuthService) IssueToken(user *domain.User) (*string, *string, error) {
 		PublicID: user.PublicID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   user.PublicID,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -80,4 +91,19 @@ func (s *AuthService) IssueToken(user *domain.User) (*string, *string, error) {
 	}
 
 	return &authToken, &refreshToken, nil
+}
+
+func (s *AuthService) CreateSession(
+	ctx context.Context,
+	publicID string,
+	session *domain.UserSession,
+	duration time.Duration,
+) error {
+	err := s.sessionRepo.SaveSession(ctx, publicID, session, duration)
+
+	if err != nil {
+		return errUtils.NewAppError(err, 500, "S001")
+	}
+
+	return nil
 }
