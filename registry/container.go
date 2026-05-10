@@ -13,6 +13,7 @@ type Container struct {
 	Postgres       *gorm.DB
 	Redis          *redis.Client
 	UserController *controller.UserController
+	AuthController *controller.AuthController
 }
 
 func NewContainer(db *gorm.DB, rdb *redis.Client) *Container {
@@ -20,10 +21,12 @@ func NewContainer(db *gorm.DB, rdb *redis.Client) *Container {
 	profileRepo := domain.NewGormProfileRepository(db)
 
 	userSvc := service.NewService(userRepo, profileRepo, db)
+	authSvc := service.NewAuthService(userRepo, db)
 
 	return &Container{
 		Postgres:       db,
 		Redis:          rdb,
 		UserController: controller.NewUserController(*userSvc),
+		AuthController: controller.NewAuthController(*authSvc),
 	}
 }

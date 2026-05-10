@@ -10,11 +10,6 @@ type PaginationRequest struct {
 	IsDesc bool `form:"isDesc;default=true"`
 }
 
-type UserAuthBase struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6,max=16"`
-}
-
 type ProfileBase struct {
 	NickName string `json:"nickname" binding:"omitempty,min=2,max=16"`
 	ImageID  *uint  `json:"imageId" binding:"omitempty"`
