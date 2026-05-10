@@ -17,9 +17,7 @@ func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 	{
 		v1 := api.Group("/v1")
 		{
-			v1.POST("/login", func(c *gin.Context) {
-				c.String(200, "this is login")
-			})
+			v1.POST("/login", ct.AuthController.Login)
 
 			v1.POST("/register", ct.UserController.StoreUser)
 
