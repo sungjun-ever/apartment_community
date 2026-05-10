@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"apart_community/internals/common/utils"
+	"apart_community/internals/common/utils/idgen"
 
 	"gorm.io/gorm"
 )
@@ -17,7 +17,7 @@ type User struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	u.PublicID = utils.GeneratePublicId()
+	u.PublicID = idgen.GeneratePublicId()
 	return
 }
 

@@ -2,6 +2,7 @@ package seeds
 
 import (
 	"apart_community/internals/common/utils"
+	"apart_community/internals/common/utils/idgen"
 	"apart_community/internals/user/domain"
 	"apart_community/internals/user/domain/roles"
 	"fmt"
@@ -17,7 +18,7 @@ func UserSeed(db *gorm.DB) {
 
 	for i := 1; i <= 10; i++ {
 		var user domain.User
-		user.PublicID = utils.GeneratePublicId()
+		user.PublicID = idgen.GeneratePublicId()
 		user.Email = "test" + strconv.Itoa(i) + "@test.com"
 		hashed, _ := utils.HashPassword("test1234")
 		user.Password = string(hashed)

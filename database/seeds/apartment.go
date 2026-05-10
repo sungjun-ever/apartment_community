@@ -2,7 +2,7 @@ package seeds
 
 import (
 	"apart_community/internals/apartment/domain"
-	"apart_community/internals/common/utils"
+	"apart_community/internals/common/utils/idgen"
 	"fmt"
 	"strconv"
 
@@ -11,7 +11,7 @@ import (
 
 func ApartmentSeed(db *gorm.DB) {
 	apt := domain.Apartment{
-		PublicID: utils.GeneratePublicId(), Code: "001", Name: "Apartment 1",
+		PublicID: idgen.GeneratePublicId(), Code: "001", Name: "Apartment 1",
 	}
 
 	err := db.Create(&apt).Error
