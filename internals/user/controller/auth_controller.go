@@ -3,6 +3,7 @@ package controller
 import (
 	"apart_community/internals/common/errUtils"
 	"apart_community/internals/common/response"
+	"apart_community/internals/common/utils/token"
 	"apart_community/internals/user/domain"
 	"apart_community/internals/user/service"
 	"time"
@@ -63,4 +64,24 @@ func (ac *AuthController) Login(c *gin.Context) {
 	response.OK(c, 200, gin.H{
 		"access_token": accessToken,
 	}, nil)
+}
+
+func (ac *AuthController) Logout(c *gin.Context) {
+	tokenString := token.GetAuthHeaderToken(c)
+	claims, err := token.ValidateAccessToken(tokenString)
+
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	err = ac.as.DestroySession(c, tokenString, claims)
+
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.SetCookie("refreshToken", "", -1, "/", "", false, true)
+	response.OK(c, 200, nil, nil)
 }

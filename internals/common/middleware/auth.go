@@ -5,13 +5,20 @@ import (
 	"apart_community/internals/common/utils/token"
 	"apart_community/internals/user/repository"
 	"errors"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware(redisAuthRepo repository.RedisAuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var err error
+		defer func() {
+			if err != nil {
+				_ = c.Error(errUtils.NewAppError(err, 500, "S001"))
+				c.Abort()
+			}
+		}()
+
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" {
@@ -20,25 +27,27 @@ func AuthMiddleware(redisAuthRepo repository.RedisAuthRepository) gin.HandlerFun
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
+		accessTokenString := token.GetAuthHeaderToken(c)
 
-		if !(len(parts) == 2 && parts[0] == "Bearer") {
+		isBlackListToken, err := redisAuthRepo.IsBlacklisted(c, accessTokenString)
+
+		if isBlackListToken != 1 {
+			_ = c.Error(errUtils.NewAppError(errors.New("인증이 만료됐습니다"), 401, "A001"))
+			c.Abort()
+			return
+		}
+
+		if accessTokenString == "" {
 			_ = c.Error(errUtils.NewAppError(errors.New("토큰 형식이 잘못됐습니다"), 401, "A002"))
 			c.Abort()
 			return
 		}
 
-		_, err := token.ValidateAccessToken(parts[1])
+		claims, err := token.ValidateAccessToken(accessTokenString)
 
-		if err != nil {
-			_ = c.Error(err)
-			c.Abort()
-			return
-		}
+		storedToken, err := redisAuthRepo.GetSession(c, claims.PublicID)
 
-		storedToken, err := redisAuthRepo.GetSession(c, parts[1])
-
-		if err != nil || storedToken == "" {
+		if storedToken == "" {
 			_ = c.Error(errUtils.NewAppError(errors.New("인증이 만료됐습니다"), 401, "A001"))
 			c.Abort()
 			return
