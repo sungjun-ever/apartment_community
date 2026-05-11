@@ -17,25 +17,27 @@ func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 	{
 		v1 := api.Group("/v1")
 		{
-
 			v1.POST("/login", ct.AuthController.Login)
-
 			v1.POST("/register", ct.UserController.StoreUser)
 
-			users := v1.Group("/users")
+			authorized := v1.Group("/")
+			authorized.Use(middleware.AuthMiddleware(ct.RedisAuthRepo))
 			{
-				users.Use(middleware.AuthMiddleware(ct.RedisAuthRepo))
+				v1.POST("/logout", ct.AuthController.Logout)
 
-				users.GET("/", ct.UserController.GetUsers)
+				users := v1.Group("/users")
+				{
+					users.GET("/", ct.UserController.GetUsers)
 
-				users.GET("/:publicID", ct.UserController.GetUser)
+					users.GET("/:publicID", ct.UserController.GetUser)
 
-				users.PUT("/:publicID", func(c *gin.Context) {
-					c.String(200, "this is update user")
-				})
-				users.DELETE("/:publicID", func(c *gin.Context) {
-					c.String(200, "this is delete user")
-				})
+					users.PUT("/:publicID", func(c *gin.Context) {
+						c.String(200, "this is update user")
+					})
+					users.DELETE("/:publicID", func(c *gin.Context) {
+						c.String(200, "this is delete user")
+					})
+				}
 			}
 
 			aparts := v1.Group("/apartments")

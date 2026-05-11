@@ -107,3 +107,23 @@ func (s *AuthService) CreateSession(
 
 	return nil
 }
+
+func (s *AuthService) DestroySession(ctx context.Context, token string, claims *domain.AccessClaims) error {
+	err := s.sessionRepo.DeleteSession(ctx, claims.PublicID)
+
+	if err != nil {
+		return errUtils.NewAppError(err, 500, "S001")
+	}
+
+	remainingTime := time.Until(claims.ExpiresAt.Time)
+
+	if remainingTime > 0 {
+		err = s.sessionRepo.SaveBlacklist(ctx, token, remainingTime)
+
+		if err != nil {
+			return errUtils.NewAppError(err, 500, "S001")
+		}
+	}
+
+	return nil
+}

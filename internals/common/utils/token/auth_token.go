@@ -5,9 +5,16 @@ import (
 	"apart_community/internals/user/domain"
 	"errors"
 	"os"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+func GetAuthHeaderToken(c *gin.Context) string {
+	authHeader := c.GetHeader("Authorization")
+	return strings.TrimPrefix(authHeader, "Bearer ")
+}
 
 func CreateAccessToken(claims *domain.AccessClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
