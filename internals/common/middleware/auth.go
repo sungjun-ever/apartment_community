@@ -31,7 +31,7 @@ func AuthMiddleware(redisAuthRepo repository.RedisAuthRepository) gin.HandlerFun
 
 		isBlackListToken, err := redisAuthRepo.IsBlacklisted(c, accessTokenString)
 
-		if isBlackListToken != 1 {
+		if isBlackListToken == 1 {
 			_ = c.Error(errUtils.NewAppError(errors.New("인증이 만료됐습니다"), 401, "A001"))
 			c.Abort()
 			return
