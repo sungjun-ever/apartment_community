@@ -31,14 +31,11 @@ type Flag struct {
 }
 
 func LoadConfig(environment *string) *Config {
-	if err := godotenv.Load("../../.env." + *environment); err != nil {
-		log.Println(err.Error())
-		log.Fatalln("Error load .env file")
-	}
+	_ = godotenv.Load("../.env." + *environment)
 	cfg := Config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.Println(err.Error())
-		log.Fatalln("Error Parse .env file")
+		log.Fatalln("Error loading .env file")
 	}
 	return &cfg
 }

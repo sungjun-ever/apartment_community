@@ -23,9 +23,9 @@ func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
 			authorized := v1.Group("/")
 			authorized.Use(middleware.AuthMiddleware(ct.RedisAuthRepo))
 			{
-				authorized.DELETE("/logout", ct.AuthController.Logout)
+				v1.POST("/logout", ct.AuthController.Logout)
 
-				users := authorized.Group("/users")
+				users := v1.Group("/users")
 				{
 					users.GET("/", ct.UserController.GetUsers)
 

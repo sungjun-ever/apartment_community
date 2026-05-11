@@ -83,7 +83,5 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	}
 
 	c.SetCookie("refreshToken", "", -1, "/", "", false, true)
-	response.OK(c, 200, gin.H{
-		"message": "로그아웃 성공",
-	}, nil)
+	response.OK(c, 200, nil, nil)
 }
