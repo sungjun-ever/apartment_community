@@ -1,1 +1,1 @@
-# go/gin 프레임워크를 활용한 커뮤니티 API
+# go/gin 프레임워크를 CRUD API 테스트
