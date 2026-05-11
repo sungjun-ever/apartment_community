@@ -16,8 +16,6 @@ func main() {
 	db := database.ConnectToPostgres(env)
 	rdb := database.ConnectToRedis(env)
 
-	database.Seeder(db, flags)
-
 	container := registry.NewContainer(db, rdb)
 
 	r := gin.Default()

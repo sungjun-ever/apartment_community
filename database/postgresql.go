@@ -2,7 +2,6 @@ package database
 
 import (
 	"apart_community/config"
-	"apart_community/database/seeds"
 	apartmentDomain "apart_community/internals/apartment/domain"
 	attachmentDomain "apart_community/internals/attachment/domain"
 	userDomain "apart_community/internals/user/domain"
@@ -31,13 +30,6 @@ func setConnOption(db *gorm.DB, env *config.Config) {
 	sqlDB.SetMaxIdleConns(env.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(env.MaxOpenConns)
 	sqlDB.SetConnMaxLifetime(time.Duration(env.ConnMaxLifetime) * time.Minute)
-}
-
-func Seeder(db *gorm.DB, parsedFlag *config.Flag) {
-	if parsedFlag.Seed {
-		seeds.ApartmentSeed(db)
-		seeds.UserSeed(db)
-	}
 }
 
 func ConnectToPostgres(env *config.Config) *gorm.DB {
