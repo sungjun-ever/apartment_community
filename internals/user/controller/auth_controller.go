@@ -25,7 +25,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 	var uab domain.UserAuthBase
 
 	if err := c.ShouldBindJSON(&uab); err != nil {
-		_ = c.Error(errUtils.NewAppError(err, 400, "C001"))
+		_ = c.Error(errUtils.NewAppError(err, 400, errUtils.C001, errUtils.LevelInfo))
 		return
 	}
 

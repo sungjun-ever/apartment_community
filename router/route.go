@@ -1,17 +1,18 @@
 package router
 
 import (
+	"apart_community/internals/common/errUtils"
 	"apart_community/internals/common/middleware"
 	"apart_community/registry"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetUpRouter(router *gin.Engine, ct *registry.Container) *gin.Engine {
+func SetUpRouter(router *gin.Engine, em *errUtils.ErrorManager, ct *registry.Container) *gin.Engine {
 	router.Use(middleware.RateLimitMiddleware(ct.Redis))
 	router.Use(middleware.TraceIdMiddleware())
 	router.Use(middleware.RequestLogMiddleware())
-	router.Use(middleware.ErrorLogMiddleWare())
+	router.Use(middleware.ErrorLogMiddleWare(em))
 
 	api := router.Group("/api")
 	{

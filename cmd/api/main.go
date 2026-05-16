@@ -3,6 +3,7 @@ package main
 import (
 	"apart_community/config"
 	"apart_community/database"
+	"apart_community/internals/common/errUtils"
 	"apart_community/registry"
 	"apart_community/router"
 
@@ -16,11 +17,13 @@ func main() {
 	db := database.ConnectToPostgres(env)
 	rdb := database.ConnectToRedis(env)
 
+	em := errUtils.NewErrorManager("../../logs/error.log")
+
 	container := registry.NewContainer(db, rdb)
 
 	r := gin.Default()
 
-	r = router.SetUpRouter(r, container)
+	r = router.SetUpRouter(r, em, container)
 
 	r.Run()
 }

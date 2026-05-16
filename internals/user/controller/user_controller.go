@@ -21,7 +21,7 @@ func (uc *UserController) GetUsers(c *gin.Context) {
 	var pr domain.PaginationRequest
 
 	if err := c.ShouldBindQuery(&pr); err != nil {
-		_ = c.Error(errUtils.NewAppError(err, 400, "C001"))
+		_ = c.Error(errUtils.NewAppError(err, 400, errUtils.C001, errUtils.LevelInfo))
 		return
 	}
 
@@ -43,7 +43,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	var pidRequest domain.PublicIdUriRequest
 
 	if err := c.ShouldBindUri(&pidRequest); err != nil {
-		_ = c.Error(errUtils.NewAppError(err, 400, "C001"))
+		_ = c.Error(errUtils.NewAppError(err, 400, errUtils.C001, errUtils.LevelInfo))
 		return
 	}
 
@@ -61,7 +61,7 @@ func (uc *UserController) StoreUser(c *gin.Context) {
 	var rq domain.RegisterRequest
 
 	if err := c.ShouldBindJSON(&rq); err != nil {
-		_ = c.Error(errUtils.NewAppError(err, 400, "C001"))
+		_ = c.Error(errUtils.NewAppError(err, 400, errUtils.C001, errUtils.LevelInfo))
 		return
 	}
 

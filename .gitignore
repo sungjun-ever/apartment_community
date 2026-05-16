@@ -150,4 +150,8 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+
+## log
+logs/
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,goland
