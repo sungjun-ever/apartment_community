@@ -34,7 +34,7 @@ func (us *UserService) FindUsers(c context.Context, rq domain.PaginationRequest)
 	users, total, err := us.userRepo.FindAll(c, offset, rq.Size)
 
 	if err != nil {
-		return nil, 0, errUtils.NewAppError(err, 500, "S001")
+		return nil, 0, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelInfo)
 	}
 
 	return users, total, nil
@@ -45,10 +45,10 @@ func (us *UserService) FindUser(c context.Context, rq domain.PublicIdUriRequest)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errUtils.NewAppError(errors.New("사용자가 존재하지 않음"), 404, "U001")
+			return nil, errUtils.NewAppError(errors.New("사용자가 존재하지 않음"), 404, errUtils.U001, errUtils.LevelInfo)
 		}
 
-		return nil, errUtils.NewAppError(err, 500, "S001")
+		return nil, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	return user, nil
@@ -60,7 +60,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 	createdUser := &domain.User{}
 
 	if userEntity == nil || profileEntity == nil {
-		return nil, errUtils.NewAppError(errors.New("엔티티 생성 데이터가 없음"), 500, "S001")
+		return nil, errUtils.NewAppError(errors.New("엔티티 생성 데이터가 없음"), 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	err := us.db.Transaction(func(tx *gorm.DB) error {
@@ -71,18 +71,18 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return errUtils.NewAppError(err, 500, "S001")
+				return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 			}
 		}
 
 		if existUser != nil {
-			return errUtils.NewAppError(errors.New("이미 존재하는 이메일"), 400, "U002")
+			return errUtils.NewAppError(errors.New("이미 존재하는 이메일"), 400, errUtils.U002, errUtils.LevelInfo)
 		}
 
 		hashed, err := utils.HashPassword(userEntity.Password)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 		}
 
 		userEntity.Password = string(hashed)
@@ -90,7 +90,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 		user, err := txUserRepo.Create(c, userEntity)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 		}
 
 		profileEntity.UserID = user.ID
@@ -98,7 +98,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 		profile, err := txProfileRepo.Create(c, profileEntity)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 		}
 
 		userEntity.Profile = *profile

@@ -41,16 +41,16 @@ func (s *AuthService) Auth(c context.Context, usb domain.UserAuthBase) (*domain.
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errUtils.NewAppError(errors.New("존재하지 않는 사용자"), 404, "U001")
+			return nil, errUtils.NewAppError(errors.New("존재하지 않는 사용자"), 404, errUtils.U001, errUtils.LevelInfo)
 		}
 
-		return nil, errUtils.NewAppError(err, 500, "S001")
+		return nil, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	isVerified := utils.VerifyPassword(user.Password, usb.Password)
 
 	if !isVerified {
-		return nil, errUtils.NewAppError(errors.New("로그인 정보가 일치하지 않음"), 400, "U004")
+		return nil, errUtils.NewAppError(errors.New("로그인 정보가 일치하지 않음"), 400, errUtils.U004, errUtils.LevelInfo)
 	}
 
 	return user, nil
@@ -72,7 +72,7 @@ func (s *AuthService) IssueToken(user *domain.User, duration time.Duration) (*st
 	authToken, err := token.CreateAccessToken(accessClaims)
 
 	if err != nil {
-		return nil, nil, errUtils.NewAppError(err, 500, "S001")
+		return nil, nil, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	refreshClaims := &domain.RefreshClaims{
@@ -87,7 +87,7 @@ func (s *AuthService) IssueToken(user *domain.User, duration time.Duration) (*st
 	refreshToken, err := token.CreateRefreshToken(refreshClaims)
 
 	if err != nil {
-		return nil, nil, errUtils.NewAppError(err, 500, "S001")
+		return nil, nil, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	return &authToken, &refreshToken, nil
@@ -102,7 +102,7 @@ func (s *AuthService) CreateSession(
 	err := s.sessionRepo.SaveSession(ctx, publicID, session, duration)
 
 	if err != nil {
-		return errUtils.NewAppError(err, 500, "S001")
+		return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func (s *AuthService) DestroySession(ctx context.Context, token string, claims *
 	err := s.sessionRepo.DeleteSession(ctx, claims.PublicID)
 
 	if err != nil {
-		return errUtils.NewAppError(err, 500, "S001")
+		return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
 	remainingTime := time.Until(claims.ExpiresAt.Time)
@@ -121,7 +121,7 @@ func (s *AuthService) DestroySession(ctx context.Context, token string, claims *
 		err = s.sessionRepo.SaveBlacklist(ctx, token, remainingTime)
 
 		if err != nil {
-			return errUtils.NewAppError(err, 500, "S001")
+			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
 		}
 	}
 

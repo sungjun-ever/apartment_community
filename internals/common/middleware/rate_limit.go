@@ -18,7 +18,7 @@ func RateLimitMiddleware(rdb *redis.Client) gin.HandlerFunc {
 		count, err := rdb.Incr(ctx, key).Result()
 
 		if err != nil {
-			_ = c.Error(errUtils.NewAppError(err, 500, "S001"))
+			_ = c.Error(errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn))
 			c.Abort()
 			return
 		}
@@ -28,7 +28,7 @@ func RateLimitMiddleware(rdb *redis.Client) gin.HandlerFunc {
 		}
 
 		if count > 60 {
-			_ = c.Error(errUtils.NewAppError(err, 429, "C004"))
+			_ = c.Error(errUtils.NewAppError(err, 429, errUtils.C004, errUtils.LevelInfo))
 			c.Abort()
 			return
 		}

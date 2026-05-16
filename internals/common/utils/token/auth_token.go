@@ -29,19 +29,19 @@ func CreateRefreshToken(claims *domain.RefreshClaims) (string, error) {
 func ValidateAccessToken(tokenString string) (*domain.AccessClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &domain.AccessClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errUtils.NewAppError(errors.New("잘못된 signing method"), 401, "A002")
+			return nil, errUtils.NewAppError(errors.New("잘못된 signing method"), 401, errUtils.A002, errUtils.LevelInfo)
 		}
 
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
-		return nil, errUtils.NewAppError(err, 401, "A002")
+		return nil, errUtils.NewAppError(err, 401, errUtils.A002, errUtils.LevelInfo)
 	}
 
 	if claims, ok := token.Claims.(*domain.AccessClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, errUtils.NewAppError(errors.New("유효하지 않은 토큰"), 401, "A002")
+	return nil, errUtils.NewAppError(errors.New("유효하지 않은 토큰"), 401, errUtils.A002, errUtils.LevelInfo)
 }
