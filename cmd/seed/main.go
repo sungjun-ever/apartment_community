@@ -8,7 +8,7 @@ import (
 
 func main() {
 	flags := config.ParseFlags()
-	env := config.LoadEnv(flags)
+	env := config.LoadEnv(&flags)
 
 	db := database.ConnectToPostgres(env)
 

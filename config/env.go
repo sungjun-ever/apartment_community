@@ -30,15 +30,17 @@ type Flag struct {
 	Seed bool
 }
 
-func LoadConfig(environment *string) *Config {
-	if err := godotenv.Load("../../.env." + *environment); err != nil {
-		log.Println(err.Error())
-		log.Fatalln("Error load .env file")
+func LoadConfig(environment string) *Config {
+	envFile := ".env." + environment
+
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("env 로딩 실패 %s:%v", envFile, err)
 	}
+
 	cfg := Config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.Println(err.Error())
-		log.Fatalln("Error Parse .env file")
+		log.Fatalln("env 파일 파싱 실패")
 	}
 	return &cfg
 }
@@ -52,22 +54,22 @@ func isValidEnvironment(environment *string) bool {
 	return false
 }
 
-func ParseFlags() *Flag {
+func ParseFlags() Flag {
 	environment := flag.String("e", "dev", "")
 	seedFlag := flag.Bool("seed", false, "seed table name")
 	flag.Parse()
 
-	return &Flag{
+	return Flag{
 		Mode: *environment,
 		Seed: *seedFlag,
 	}
 }
 
 func LoadEnv(parsedFlag *Flag) *Config {
-	environment := &parsedFlag.Mode
+	environment := parsedFlag.Mode
 
-	if !isValidEnvironment(environment) {
-		log.Fatalf("Invalid environment: %s\n", *environment)
+	if !isValidEnvironment(&environment) {
+		log.Fatalf("Invalid environment: %s\n", environment)
 	}
 
 	config := LoadConfig(environment)
