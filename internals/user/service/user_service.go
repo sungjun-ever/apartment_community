@@ -29,9 +29,9 @@ func NewService(
 	}
 }
 
-func (us *UserService) FindUsers(c context.Context, rq domain.PaginationRequest) ([]*domain.User, int64, error) {
+func (us *UserService) FindUsers(ctx context.Context, rq domain.PaginationRequest) ([]*domain.User, int64, error) {
 	offset := (rq.Page - 1) * rq.Size
-	users, total, err := us.userRepo.FindAll(c, offset, rq.Size)
+	users, total, err := us.userRepo.FindAll(ctx, offset, rq.Size)
 
 	if err != nil {
 		return nil, 0, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelInfo)
@@ -40,8 +40,8 @@ func (us *UserService) FindUsers(c context.Context, rq domain.PaginationRequest)
 	return users, total, nil
 }
 
-func (us *UserService) FindUser(c context.Context, rq domain.PublicIdUriRequest) (*domain.User, error) {
-	user, err := us.userRepo.FindByPublicId(c, rq.PublicID)
+func (us *UserService) FindUser(ctx context.Context, rq domain.PublicIdUriRequest) (*domain.User, error) {
+	user, err := us.userRepo.FindByPublicId(ctx, rq.PublicID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -54,7 +54,7 @@ func (us *UserService) FindUser(c context.Context, rq domain.PublicIdUriRequest)
 	return user, nil
 }
 
-func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) (*domain.User, error) {
+func (us *UserService) CreateUser(ctx context.Context, rq domain.RegisterRequest) (*domain.User, error) {
 	userEntity := rq.ToUserEntity()
 	profileEntity := rq.ToProfileEntity()
 	createdUser := &domain.User{}
@@ -67,7 +67,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 		txUserRepo := us.userRepo.WithTrx(tx)
 		txProfileRepo := us.profileRepo.WithTrx(tx)
 
-		existUser, err := txUserRepo.FindByEmail(c, userEntity.Email)
+		existUser, err := txUserRepo.FindByEmail(ctx, userEntity.Email)
 
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -87,7 +87,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 
 		userEntity.Password = string(hashed)
 
-		user, err := txUserRepo.Create(c, userEntity)
+		user, err := txUserRepo.Create(ctx, userEntity)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
@@ -95,7 +95,7 @@ func (us *UserService) CreateUser(c context.Context, rq domain.RegisterRequest) 
 
 		profileEntity.UserID = user.ID
 
-		profile, err := txProfileRepo.Create(c, profileEntity)
+		profile, err := txProfileRepo.Create(ctx, profileEntity)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)

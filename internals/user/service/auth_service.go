@@ -36,8 +36,8 @@ func NewAuthService(
 	}
 }
 
-func (s *AuthService) Auth(c context.Context, usb domain.UserAuthBase) (*domain.User, error) {
-	user, err := s.userRepo.FindByEmail(c, usb.Email)
+func (s *AuthService) Auth(ctx context.Context, usb domain.UserAuthBase) (*domain.User, error) {
+	user, err := s.userRepo.FindByEmail(ctx, usb.Email)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -56,7 +56,7 @@ func (s *AuthService) Auth(c context.Context, usb domain.UserAuthBase) (*domain.
 	return user, nil
 }
 
-func (s *AuthService) IssueToken(user *domain.User, duration time.Duration) (*string, *string, error) {
+func (s *AuthService) IssueToken(ctx context.Context, user *domain.User, duration time.Duration) (*string, *string, error) {
 	accessClaims := &domain.AccessClaims{
 		PublicID: user.PublicID,
 		Email:    user.Email,

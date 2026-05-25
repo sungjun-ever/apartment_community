@@ -22,6 +22,7 @@ func NewAuthController(as service.AuthService) *AuthController {
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
+	var ctx = c.Request.Context()
 	var uab domain.UserAuthBase
 
 	if err := c.ShouldBindJSON(&uab); err != nil {
@@ -29,7 +30,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := ac.as.Auth(c, uab)
+	user, err := ac.as.Auth(ctx, uab)
 
 	if err != nil {
 		_ = c.Error(err)
@@ -38,7 +39,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 	refreshDuration := time.Hour * 24 * 7
 
-	accessToken, refreshToken, err := ac.as.IssueToken(user, refreshDuration)
+	accessToken, refreshToken, err := ac.as.IssueToken(ctx, user, refreshDuration)
 
 	if err != nil {
 		_ = c.Error(err)
@@ -52,7 +53,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		CreatedAt:    time.Now().Format(time.DateTime),
 	}
 
-	err = ac.as.CreateSession(c, user.PublicID, &session, refreshDuration)
+	err = ac.as.CreateSession(ctx, user.PublicID, &session, refreshDuration)
 
 	if err != nil {
 		_ = c.Error(err)
@@ -67,6 +68,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 }
 
 func (ac *AuthController) Logout(c *gin.Context) {
+	var ctx = c.Request.Context()
 	tokenString := token.GetAuthHeaderToken(c)
 	claims, err := token.ValidateAccessToken(tokenString)
 
@@ -75,7 +77,7 @@ func (ac *AuthController) Logout(c *gin.Context) {
 		return
 	}
 
-	err = ac.as.DestroySession(c, tokenString, claims)
+	err = ac.as.DestroySession(ctx, tokenString, claims)
 
 	if err != nil {
 		_ = c.Error(err)

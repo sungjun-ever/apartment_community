@@ -18,6 +18,7 @@ func NewUserController(us service.UserService) *UserController {
 }
 
 func (uc *UserController) GetUsers(c *gin.Context) {
+	var ctx = c.Request.Context()
 	var pr domain.PaginationRequest
 
 	if err := c.ShouldBindQuery(&pr); err != nil {
@@ -25,7 +26,7 @@ func (uc *UserController) GetUsers(c *gin.Context) {
 		return
 	}
 
-	users, total, err := uc.us.FindUsers(c, pr)
+	users, total, err := uc.us.FindUsers(ctx, pr)
 
 	if err != nil {
 		_ = c.Error(err)
@@ -40,6 +41,7 @@ func (uc *UserController) GetUsers(c *gin.Context) {
 }
 
 func (uc *UserController) GetUser(c *gin.Context) {
+	var ctx = c.Request.Context()
 	var pidRequest domain.PublicIdUriRequest
 
 	if err := c.ShouldBindUri(&pidRequest); err != nil {
@@ -47,7 +49,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uc.us.FindUser(c, pidRequest)
+	user, err := uc.us.FindUser(ctx, pidRequest)
 
 	if err != nil {
 		_ = c.Error(err)
@@ -58,6 +60,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 }
 
 func (uc *UserController) StoreUser(c *gin.Context) {
+	var ctx = c.Request.Context()
 	var rq domain.RegisterRequest
 
 	if err := c.ShouldBindJSON(&rq); err != nil {
@@ -65,7 +68,7 @@ func (uc *UserController) StoreUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uc.us.CreateUser(c, rq)
+	user, err := uc.us.CreateUser(ctx, rq)
 
 	if err != nil {
 		_ = c.Error(err)
