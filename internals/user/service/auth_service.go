@@ -16,23 +16,23 @@ import (
 )
 
 type AuthService struct {
-	sessionRepo repository.RedisAuthRepository
-	userRepo    repository.GormUserRepository
-	db          *gorm.DB
-	redis       *redis.Client
+	autoRepo repository.AuthRepository
+	userRepo repository.UserRepository
+	db       *gorm.DB
+	redis    *redis.Client
 }
 
 func NewAuthService(
-	sessionRepo repository.RedisAuthRepository,
-	userRepo repository.GormUserRepository,
+	authRepo repository.AuthRepository,
+	userRepo repository.UserRepository,
 	db *gorm.DB,
 	redis *redis.Client,
 ) *AuthService {
 	return &AuthService{
-		sessionRepo: sessionRepo,
-		userRepo:    userRepo,
-		db:          db,
-		redis:       redis,
+		autoRepo: authRepo,
+		userRepo: userRepo,
+		db:       db,
+		redis:    redis,
 	}
 }
 
@@ -99,7 +99,7 @@ func (s *AuthService) CreateSession(
 	session *domain.UserSession,
 	duration time.Duration,
 ) error {
-	err := s.sessionRepo.SaveSession(ctx, publicID, session, duration)
+	err := s.autoRepo.SaveSession(ctx, publicID, session, duration)
 
 	if err != nil {
 		return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
@@ -109,7 +109,7 @@ func (s *AuthService) CreateSession(
 }
 
 func (s *AuthService) DestroySession(ctx context.Context, token string, claims *domain.AccessClaims) error {
-	err := s.sessionRepo.DeleteSession(ctx, claims.PublicID)
+	err := s.autoRepo.DeleteSession(ctx, claims.PublicID)
 
 	if err != nil {
 		return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
@@ -118,7 +118,7 @@ func (s *AuthService) DestroySession(ctx context.Context, token string, claims *
 	remainingTime := time.Until(claims.ExpiresAt.Time)
 
 	if remainingTime > 0 {
-		err = s.sessionRepo.SaveBlacklist(ctx, token, remainingTime)
+		err = s.autoRepo.SaveBlacklist(ctx, token, remainingTime)
 
 		if err != nil {
 			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)

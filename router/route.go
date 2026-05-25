@@ -22,7 +22,7 @@ func SetUpRouter(router *gin.Engine, em *errUtils.ErrorManager, ct *registry.Con
 			v1.POST("/register", ct.UserController.StoreUser)
 
 			authorized := v1.Group("/")
-			authorized.Use(middleware.AuthMiddleware(ct.RedisAuthRepo))
+			authorized.Use(middleware.AuthMiddleware(ct.AuthRepo))
 			{
 				v1.POST("/logout", ct.AuthController.Logout)
 

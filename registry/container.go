@@ -12,23 +12,23 @@ import (
 type Container struct {
 	Postgres       *gorm.DB
 	Redis          *redis.Client
-	RedisAuthRepo  repository.RedisAuthRepository
+	AuthRepo       repository.AuthRepository
 	UserController *controller.UserController
 	AuthController *controller.AuthController
 }
 
 func NewContainer(db *gorm.DB, rdb *redis.Client) *Container {
-	redisAuthRepo := repository.NewRedisAuthRepository(rdb)
-	userRepo := repository.NewGormUserRepository(db)
-	profileRepo := repository.NewGormProfileRepository(db)
+	authRepo := repository.NewAuthRepository(rdb)
+	userRepo := repository.NewUserRepository(db)
+	profileRepo := repository.NewProfileRepository(db)
 
 	userSvc := service.NewService(userRepo, profileRepo, db)
-	authSvc := service.NewAuthService(redisAuthRepo, userRepo, db, rdb)
+	authSvc := service.NewAuthService(authRepo, userRepo, db, rdb)
 
 	return &Container{
 		Postgres:       db,
 		Redis:          rdb,
-		RedisAuthRepo:  redisAuthRepo,
+		AuthRepo:       authRepo,
 		UserController: controller.NewUserController(*userSvc),
 		AuthController: controller.NewAuthController(*authSvc),
 	}

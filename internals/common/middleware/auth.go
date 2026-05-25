@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(redisAuthRepo repository.RedisAuthRepository) gin.HandlerFunc {
+func AuthMiddleware(redisAuthRepo repository.AuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 

@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type RedisAuthRepository interface {
+type AuthRepository interface {
 	GetSession(ctx context.Context, publicID string) (string, error)
 	SaveSession(ctx context.Context, publicID string, session *domain.UserSession, duration time.Duration) error
 	DeleteSession(ctx context.Context, publicID string) error
@@ -18,17 +18,17 @@ type RedisAuthRepository interface {
 	IsBlacklisted(ctx context.Context, token string) (int64, error)
 }
 
-type redisAuthRepository struct {
+type authRepository struct {
 	rds *redis.Client
 }
 
-func NewRedisAuthRepository(redis *redis.Client) RedisAuthRepository {
-	return &redisAuthRepository{
+func NewAuthRepository(redis *redis.Client) AuthRepository {
+	return &authRepository{
 		rds: redis,
 	}
 }
 
-func (r redisAuthRepository) GetSession(ctx context.Context, publicID string) (string, error) {
+func (r authRepository) GetSession(ctx context.Context, publicID string) (string, error) {
 	key := utils.SessionKey(publicID)
 	result, err := r.rds.Get(ctx, key).Result()
 
@@ -39,7 +39,7 @@ func (r redisAuthRepository) GetSession(ctx context.Context, publicID string) (s
 	return result, nil
 }
 
-func (r redisAuthRepository) SaveSession(ctx context.Context, publicID string, session *domain.UserSession,
+func (r authRepository) SaveSession(ctx context.Context, publicID string, session *domain.UserSession,
 	duration time.Duration) error {
 	key := utils.SessionKey(publicID)
 	data, _ := json.Marshal(session)
@@ -53,7 +53,7 @@ func (r redisAuthRepository) SaveSession(ctx context.Context, publicID string, s
 	return nil
 }
 
-func (r redisAuthRepository) DeleteSession(ctx context.Context, publicID string) error {
+func (r authRepository) DeleteSession(ctx context.Context, publicID string) error {
 	key := utils.SessionKey(publicID)
 
 	err := r.rds.Del(ctx, key).Err()
@@ -65,7 +65,7 @@ func (r redisAuthRepository) DeleteSession(ctx context.Context, publicID string)
 	return nil
 }
 
-func (r redisAuthRepository) IsBlacklisted(ctx context.Context, token string) (int64, error) {
+func (r authRepository) IsBlacklisted(ctx context.Context, token string) (int64, error) {
 	key := utils.BlacklistAccessTokenKey(token)
 	result, err := r.rds.Exists(ctx, key).Result()
 
@@ -80,7 +80,7 @@ func (r redisAuthRepository) IsBlacklisted(ctx context.Context, token string) (i
 	return 0, nil
 }
 
-func (r redisAuthRepository) SaveBlacklist(ctx context.Context, token string, duration time.Duration) error {
+func (r authRepository) SaveBlacklist(ctx context.Context, token string, duration time.Duration) error {
 	key := utils.BlacklistAccessTokenKey(token)
 
 	err := r.rds.Set(ctx, key, token, duration).Err()

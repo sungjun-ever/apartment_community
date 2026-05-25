@@ -8,26 +8,26 @@ import (
 	"gorm.io/gorm"
 )
 
-type GormProfileRepository interface {
+type ProfileRepository interface {
 	Create(ctx context.Context, entity *domain.Profile) (*domain.Profile, error)
 
-	WithTrx(tx *gorm.DB) GormProfileRepository
+	WithTx(tx *gorm.DB) ProfileRepository
 }
 
-type gormProfileRepository struct {
+type profileRepository struct {
 	*repository.GormBaseRepository[domain.Profile]
 	db *gorm.DB
 }
 
-func NewGormProfileRepository(db *gorm.DB) GormProfileRepository {
-	return &gormProfileRepository{
+func NewProfileRepository(db *gorm.DB) ProfileRepository {
+	return &profileRepository{
 		GormBaseRepository: repository.NewGormBaseRepository[domain.Profile](db),
 		db:                 db,
 	}
 }
 
-func (r *gormProfileRepository) WithTrx(tx *gorm.DB) GormProfileRepository {
-	return &gormProfileRepository{
+func (r *profileRepository) WithTx(tx *gorm.DB) ProfileRepository {
+	return &profileRepository{
 		GormBaseRepository: repository.NewGormBaseRepository[domain.Profile](tx),
 		db:                 tx,
 	}

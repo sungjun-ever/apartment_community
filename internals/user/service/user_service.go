@@ -12,14 +12,14 @@ import (
 )
 
 type UserService struct {
-	userRepo    repository.GormUserRepository
-	profileRepo repository.GormProfileRepository
+	userRepo    repository.UserRepository
+	profileRepo repository.ProfileRepository
 	db          *gorm.DB
 }
 
 func NewService(
-	userRepo repository.GormUserRepository,
-	profileRepo repository.GormProfileRepository,
+	userRepo repository.UserRepository,
+	profileRepo repository.ProfileRepository,
 	db *gorm.DB,
 ) *UserService {
 	return &UserService{
@@ -41,7 +41,7 @@ func (us *UserService) FindUsers(ctx context.Context, rq domain.PaginationReques
 }
 
 func (us *UserService) FindUser(ctx context.Context, rq domain.PublicIdUriRequest) (*domain.User, error) {
-	user, err := us.userRepo.FindByPublicId(ctx, rq.PublicID)
+	user, err := us.userRepo.FindByPublicID(ctx, rq.PublicID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -57,15 +57,24 @@ func (us *UserService) FindUser(ctx context.Context, rq domain.PublicIdUriReques
 func (us *UserService) CreateUser(ctx context.Context, rq domain.RegisterRequest) (*domain.User, error) {
 	userEntity := rq.ToUserEntity()
 	profileEntity := rq.ToProfileEntity()
-	createdUser := &domain.User{}
 
 	if userEntity == nil || profileEntity == nil {
 		return nil, errUtils.NewAppError(errors.New("엔티티 생성 데이터가 없음"), 500, errUtils.S001, errUtils.LevelWarn)
 	}
 
-	err := us.db.Transaction(func(tx *gorm.DB) error {
-		txUserRepo := us.userRepo.WithTrx(tx)
-		txProfileRepo := us.profileRepo.WithTrx(tx)
+	hashed, err := utils.HashPassword(userEntity.Password)
+
+	if err != nil {
+		return nil, errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
+	}
+
+	userEntity.Password = string(hashed)
+
+	var createdUser *domain.User
+
+	err = us.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		txUserRepo := us.userRepo.WithTx(tx)
+		txProfileRepo := us.profileRepo.WithTx(tx)
 
 		existUser, err := txUserRepo.FindByEmail(ctx, userEntity.Email)
 
@@ -78,14 +87,6 @@ func (us *UserService) CreateUser(ctx context.Context, rq domain.RegisterRequest
 		if existUser != nil {
 			return errUtils.NewAppError(errors.New("이미 존재하는 이메일"), 400, errUtils.U002, errUtils.LevelInfo)
 		}
-
-		hashed, err := utils.HashPassword(userEntity.Password)
-
-		if err != nil {
-			return errUtils.NewAppError(err, 500, errUtils.S001, errUtils.LevelWarn)
-		}
-
-		userEntity.Password = string(hashed)
 
 		user, err := txUserRepo.Create(ctx, userEntity)
 

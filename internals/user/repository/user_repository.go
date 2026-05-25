@@ -8,57 +8,57 @@ import (
 	"gorm.io/gorm"
 )
 
-type GormUserRepository interface {
+type UserRepository interface {
 	FindAll(ctx context.Context, offset, limit int) ([]*domain.User, int64, error)
-	FindById(ctx context.Context, id uint) (*domain.User, error)
+	FindByID(ctx context.Context, id uint) (*domain.User, error)
 	Create(ctx context.Context, entity *domain.User) (*domain.User, error)
 	Update(ctx context.Context, entity *domain.User) (*domain.User, error)
 	Delete(ctx context.Context, id uint) error
 
-	FindByPublicId(ctx context.Context, publicId string) (*domain.User, error)
+	FindByPublicID(ctx context.Context, publicId string) (*domain.User, error)
 	FindByEmail(ctx context.Context, email string) (*domain.User, error)
-	WithTrx(tx *gorm.DB) GormUserRepository
+	WithTx(tx *gorm.DB) UserRepository
 }
 
-type gormUserRepository struct {
+type userRepository struct {
 	*repository.GormBaseRepository[domain.User]
 	db *gorm.DB
 }
 
-func NewGormUserRepository(db *gorm.DB) GormUserRepository {
-	return &gormUserRepository{
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{
 		GormBaseRepository: repository.NewGormBaseRepository[domain.User](db),
 		db:                 db,
 	}
 }
 
-func (r *gormUserRepository) WithTrx(tx *gorm.DB) GormUserRepository {
-	return &gormUserRepository{
+func (r *userRepository) WithTx(tx *gorm.DB) UserRepository {
+	return &userRepository{
 		GormBaseRepository: repository.NewGormBaseRepository[domain.User](tx),
 		db:                 tx,
 	}
 }
 
-func (r *gormUserRepository) FindAll(ctx context.Context, offset, limit int) ([]*domain.User, int64, error) {
+func (r *userRepository) FindAll(ctx context.Context, offset, limit int) ([]*domain.User, int64, error) {
 	var users []*domain.User
 	var total int64
 
-	query := r.Conn(ctx).Preload("Profile").Model(&domain.User{})
+	query := r.Conn(ctx).Model(&domain.User{})
 
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	err := query.Limit(limit).Offset(offset).Order("created_at desc").Find(&users).Error
-
-	if err != nil {
+	if err := query.Session(&gorm.Session{}).Preload("Profile").
+		Limit(limit).Offset(offset).Order("created_at desc").Find(&users).
+		Error; err != nil {
 		return nil, 0, err
 	}
 
 	return users, total, nil
 }
 
-func (r *gormUserRepository) FindByPublicId(ctx context.Context, publicId string) (*domain.User, error) {
+func (r *userRepository) FindByPublicID(ctx context.Context, publicId string) (*domain.User, error) {
 	var user domain.User
 
 	err := r.Conn(ctx).Preload("Profile").
@@ -73,10 +73,10 @@ func (r *gormUserRepository) FindByPublicId(ctx context.Context, publicId string
 	return &user, nil
 }
 
-func (r *gormUserRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
 
-	err := r.db.WithContext(ctx).
+	err := r.Conn(ctx).
 		Where("email = ?", email).
 		First(&user).
 		Error
