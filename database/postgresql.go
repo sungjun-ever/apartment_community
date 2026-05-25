@@ -47,7 +47,8 @@ func ConnectToPostgres(env *config.Config) *gorm.DB {
 		DSN:                  dsn,
 		PreferSimpleProtocol: true,
 	}), &gorm.Config{
-		Logger: logger.Default.LogMode(logLevel),
+		Logger:      logger.Default.LogMode(logLevel),
+		PrepareStmt: true,
 	})
 
 	if err != nil {
